@@ -50,6 +50,12 @@ public class CommandHandler {
             case "addMovie":
                 mainSystem.addMovie(data);
                 break;
+            case "addUser":
+                mainSystem.addUser(data);
+                break;
+            case "addComment":
+                mainSystem.addComment(data);
+                break;
         }
     }
 

@@ -1,5 +1,6 @@
 package ir.ac.ut.ie;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -11,6 +12,7 @@ public class MainSystem {
     private ObjectMapper mapper;
     Map<Integer, Actor> existingActors;
     Map<Integer, Movie> movies;
+    Map<String, User> users;
 
 
     public MainSystem() {
@@ -19,6 +21,7 @@ public class MainSystem {
         mapper.setDateFormat(df);
         existingActors = new HashMap<>();
         movies = new HashMap<>();
+        users = new HashMap<>();
     }
 
     public void addActor(String data) throws IOException {
@@ -42,8 +45,10 @@ public class MainSystem {
         }
         if (movies.containsKey(movie.getId()))
             movies.get(movie.getId()).update(movie);
-        else
+        else {
+            movie.initialValues();
             movies.put(movie.getId(), movie);
+        }
         CommandHandler.printOutput(new Output(true, ""));
     }
 
@@ -54,4 +59,32 @@ public class MainSystem {
         }
         return true;
     }
+
+    public void addUser(String data) throws IOException {
+        User user = mapper.readValue(data, User.class);
+        users.put(user.getEmail(), user);
+        CommandHandler.printOutput(new Output(true, ""));
+    }
+
+    public void addComment(String data) throws IOException {
+        Comment comment = mapper.readValue(data, Comment.class);
+        if (commentHasError(comment.getUserEmail(), comment.getMovieId()))
+            return;
+        movies.get(comment.getMovieId()).addComment(comment);
+        CommandHandler.printOutput(new Output(true, ""));
+
+    }
+
+    private boolean commentHasError(String userEmail, Integer movieId) throws JsonProcessingException {
+        if (!users.containsKey(userEmail)) {
+            CommandHandler.printOutput(new Output(false, "UserNotFound"));
+            return true;
+        }
+        if (! movies.containsKey(movieId)) {
+            CommandHandler.printOutput(new Output(false, "MovieNotFound"));
+            return true;
+        }
+        return false;
+    }
+
 }
