@@ -1,15 +1,20 @@
 package ir.ac.ut.ie;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.util.*;
 
 public class CommandHandler {
     private Scanner input;
     private MainSystem mainSystem;
+    private static ObjectMapper mapper;
 
     public CommandHandler() {
         mainSystem = new MainSystem();
         input = new Scanner(System.in);
+        mapper = new ObjectMapper();
     }
 
     public static void main(String[] args) throws IOException {
@@ -41,7 +46,16 @@ public class CommandHandler {
         switch (command) {
             case "addActor":
                 mainSystem.addActor(data);
-
+                break;
+            case "addMovie":
+                mainSystem.addMovie(data);
+                break;
         }
+    }
+
+    public static void printOutput(Output output) throws JsonProcessingException {
+        String print = mapper.writeValueAsString(output);
+        print = print.replace("\\", "");
+        System.out.println(print);
     }
 }
