@@ -18,12 +18,14 @@ public class Movie {
     private int ratingCount;
     private Map<Integer, Comment> comments;
     private int commentId;
+    private Map<String, Integer> rates;
 
     public void initialValues() {
         rating = 0;
         ratingCount = 0;
         comments = new HashMap<>();
         commentId = 1;
+        rates = new HashMap<>();
     }
 
     public void update(Movie updatedMovie) {
@@ -43,6 +45,16 @@ public class Movie {
         comment.initialValues(commentId);
         comments.put(commentId, comment);
         commentId += 1;
+    }
+
+    public void addRate(Rate rate) {
+        if (rates.containsKey(rate.getUserEmail()))
+            rating = (rating * ratingCount - rates.get(rate.getUserEmail()) + rate.getScore()) / ratingCount;
+        else {
+            rating = (rating * ratingCount + rate.getScore()) / (ratingCount + 1);
+            ratingCount += 1;
+        }
+        rates.put(rate.getUserEmail(), (int) rate.getScore());
     }
 
 

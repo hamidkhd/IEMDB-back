@@ -68,14 +68,14 @@ public class MainSystem {
 
     public void addComment(String data) throws IOException {
         Comment comment = mapper.readValue(data, Comment.class);
-        if (commentHasError(comment.getUserEmail(), comment.getMovieId()))
+        if (userOrMovieNotFound(comment.getUserEmail(), comment.getMovieId()))
             return;
         movies.get(comment.getMovieId()).addComment(comment);
         CommandHandler.printOutput(new Output(true, ""));
 
     }
 
-    private boolean commentHasError(String userEmail, Integer movieId) throws JsonProcessingException {
+    private boolean userOrMovieNotFound(String userEmail, Integer movieId) throws JsonProcessingException {
         if (!users.containsKey(userEmail)) {
             CommandHandler.printOutput(new Output(false, "UserNotFound"));
             return true;
@@ -85,6 +85,16 @@ public class MainSystem {
             return true;
         }
         return false;
+    }
+
+    public void rateMovie(String data) throws IOException {
+        Rate rate = mapper.readValue(data, Rate.class);
+        if (userOrMovieNotFound(rate.getUserEmail(), rate.getMovieId()))
+            return;
+        if (rate.hasError())
+            return;
+        movies.get(rate.getMovieId()).addRate(rate);
+        CommandHandler.printOutput(new Output(true, ""));
     }
 
 }
