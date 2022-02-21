@@ -1,6 +1,9 @@
 package ir.ac.ut.ie;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -46,6 +49,20 @@ public class User {
         }
         watchList.remove(movieId);
         CommandHandler.printOutput(new Output(true, ""));
+    }
+
+    public void getWatchList(ObjectMapper mapper, Map<Integer, Movie> movies) throws JsonProcessingException {
+        ObjectNode watchListNode = mapper.createObjectNode();
+        List<ObjectNode> moviesObjectNode = new ArrayList<>();
+        for (Integer movieId : watchList) {
+            ObjectNode movie = mapper.createObjectNode();
+            movies.get(movieId).createInformationJson(mapper, movie);
+            moviesObjectNode.add(movie);
+        }
+        ArrayNode arrayNode = mapper.valueToTree(moviesObjectNode);
+        watchListNode.putArray("WatchList").addAll(arrayNode);
+        String data = mapper.writeValueAsString(watchListNode);
+        CommandHandler.printOutput(new Output(true, data));
     }
 
     public String getEmail() {

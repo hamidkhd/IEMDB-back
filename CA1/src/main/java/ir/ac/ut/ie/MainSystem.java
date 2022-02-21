@@ -155,7 +155,7 @@ public class MainSystem {
         List<ObjectNode> objects = new ArrayList<>();
         for (Map.Entry<Integer, Movie> entry : movies.entrySet()) {
             ObjectNode movie = mapper.createObjectNode();
-            entry.getValue().createInformationString(mapper, movie);
+            entry.getValue().createInformationJson(mapper, movie);
             objects.add(movie);
         }
         ArrayNode arrayNode = mapper.valueToTree(objects);
@@ -168,6 +168,13 @@ public class MainSystem {
         if (movieNotFound(id))
             return;
         movies.get(id).printMovieInformation(mapper, existingActors);
+    }
+
+    public void getWatchList(String data) throws IOException {
+        String userEmail = mapper.readTree(data).get("userEmail").asText();
+        if (userNotFound(userEmail))
+            return;
+        users.get(userEmail).getWatchList(mapper, movies);
     }
 
 }

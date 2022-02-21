@@ -61,7 +61,7 @@ public class Movie {
         rates.put(rate.getUserEmail(), (int) rate.getScore());
     }
 
-    public void createInformationString(ObjectMapper mapper, ObjectNode movie) {
+    public void createInformationJson(ObjectMapper mapper, ObjectNode movie) {
         movie.put("movieId", id);
         movie.put("name", name);
         movie.put("director", director);
