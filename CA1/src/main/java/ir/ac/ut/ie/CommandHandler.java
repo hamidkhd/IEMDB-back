@@ -62,6 +62,8 @@ public class CommandHandler {
             case "voteComment":
                 mainSystem.voteComment(data);
                 break;
+            case "addToWatchList":
+                mainSystem.addToWatchList(data);
         }
     }
 

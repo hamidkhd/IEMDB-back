@@ -1,7 +1,10 @@
 package ir.ac.ut.ie;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -122,6 +125,16 @@ public class MainSystem {
         if (vote.hasError())
             return;
         comments.get(vote.getCommentId()).addVote(vote);
+    }
+
+    public void addToWatchList(String data) throws IOException {
+        JsonNode jsonNode = mapper.readTree(data);
+        String userEmail = jsonNode.get("userEmail").asText();
+        Integer movieId = jsonNode.get("movieId").asInt();
+        if (userNotFound(userEmail) || movieNotFound(movieId))
+            return;
+        int ageLimit = movies.get(movieId).getAgeLimit();
+        users.get(userEmail).addToWatchList(movieId, ageLimit);
     }
 
 }
