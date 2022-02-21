@@ -1,9 +1,12 @@
 package ir.ac.ut.ie;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Movie {
@@ -65,6 +68,37 @@ public class Movie {
         ArrayNode genreArrayNode = mapper.valueToTree(genres);
         movie.putArray("genres").addAll(genreArrayNode);
         movie.put("rating", rating);
+    }
+
+    public void printMovieInformation(ObjectMapper mapper, Map<Integer, Actor> actors) throws JsonProcessingException {
+        ObjectNode movie = mapper.createObjectNode();
+        movie.put("movieId", id);
+        movie.put("name", name);
+        movie.put("summary", summary);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+        String releaseDate = dateFormat.format(this.releaseDate);
+        movie.put("releaseDate", releaseDate);
+        movie.put("director", director);
+        ArrayNode writersArray = mapper.valueToTree(writers);
+        movie.putArray("writers").addAll(writersArray);
+        ArrayNode genreArrayNode = mapper.valueToTree(genres);
+        movie.putArray("genres").addAll(genreArrayNode);
+        List<ObjectNode> actorsObjNode = new ArrayList<>();
+        for (Integer actorId: cast)
+            actorsObjNode.add(actors.get(actorId).getInformation(mapper));
+        ArrayNode actorsArrayNode = mapper.valueToTree(actorsObjNode);
+        String actorsString = mapper.writeValueAsString(actorsArrayNode);
+        movie.put("cast", actorsString);
+        movie.put("rating", rating);
+        movie.put("ageLimit", ageLimit);
+        List<ObjectNode> commentsObjNodes = new ArrayList<>();
+        for (Map.Entry<Integer, Comment> entry: comments.entrySet())
+            commentsObjNodes.add(entry.getValue().getInformation(mapper));
+        ArrayNode commentsArrayNode = mapper.valueToTree(commentsObjNodes);
+        String commentsString = mapper.writeValueAsString(commentsArrayNode);
+        movie.put("comments", commentsString);
+        String data = mapper.writeValueAsString(movie);
+        CommandHandler.printOutput(new Output(true, data));
     }
 
 

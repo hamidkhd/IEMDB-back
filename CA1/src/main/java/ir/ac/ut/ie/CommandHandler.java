@@ -72,6 +72,9 @@ public class CommandHandler {
             case "getMoviesList":
                 mainSystem.getMoviesList();
                 break;
+            case "getMovieById":
+                mainSystem.getMovieById(data);
+                break;
         }
     }
 

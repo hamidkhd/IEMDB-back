@@ -1,6 +1,8 @@
 package ir.ac.ut.ie;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +18,13 @@ public class Actor {
         name = updatedActor.getName();
         birthDate = updatedActor.getBirthDate();
         nationality = updatedActor.getNationality();
+    }
+
+    public ObjectNode getInformation(ObjectMapper mapper) {
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("actorId", id);
+        objectNode.put("name", name);
+        return objectNode;
     }
 
     public Integer getId() {

@@ -1,5 +1,8 @@
 package ir.ac.ut.ie;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.*;
 
 public class Comment {
@@ -34,6 +37,16 @@ public class Comment {
             like += 1;
         if (vote.getVote() == -1)
             dislike += 1;
+    }
+
+    public ObjectNode getInformation(ObjectMapper mapper) {
+        ObjectNode commentMapper = mapper.createObjectNode();
+        commentMapper.put("commentId", commentId);
+        commentMapper.put("userEmail", userEmail);
+        commentMapper.put("text", text);
+        commentMapper.put("like", like);
+        commentMapper.put("dislike", dislike);
+        return commentMapper;
     }
 
     public int getCommentId() {

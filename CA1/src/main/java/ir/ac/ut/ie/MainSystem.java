@@ -127,6 +127,7 @@ public class MainSystem {
         if (vote.hasError())
             return;
         comments.get(vote.getCommentId()).addVote(vote);
+        CommandHandler.printOutput(new Output(true, ""));
     }
 
     public void watchListHandler(String data, boolean add) throws IOException {
@@ -160,6 +161,13 @@ public class MainSystem {
         ArrayNode arrayNode = mapper.valueToTree(objects);
         String data = mapper.writeValueAsString(arrayNode);
         CommandHandler.printOutput(new Output(true, data));
+    }
+
+    public void getMovieById(String data) throws IOException {
+        Integer id = mapper.readTree(data).get("movieId").asInt();
+        if (movieNotFound(id))
+            return;
+        movies.get(id).printMovieInformation(mapper, existingActors);
     }
 
 }
