@@ -63,7 +63,11 @@ public class CommandHandler {
                 mainSystem.voteComment(data);
                 break;
             case "addToWatchList":
-                mainSystem.addToWatchList(data);
+                mainSystem.watchListHandler(data, true);
+                break;
+            case "removeFromWatchList":
+                mainSystem.watchListHandler(data, false);
+                break;
         }
     }
 

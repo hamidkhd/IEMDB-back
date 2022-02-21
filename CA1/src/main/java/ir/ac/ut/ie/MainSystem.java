@@ -127,14 +127,25 @@ public class MainSystem {
         comments.get(vote.getCommentId()).addVote(vote);
     }
 
-    public void addToWatchList(String data) throws IOException {
+    public void watchListHandler(String data, boolean add) throws IOException {
         JsonNode jsonNode = mapper.readTree(data);
         String userEmail = jsonNode.get("userEmail").asText();
         Integer movieId = jsonNode.get("movieId").asInt();
         if (userNotFound(userEmail) || movieNotFound(movieId))
             return;
+        if (add)
+            addToWatchList(userEmail, movieId);
+        else
+            removeFromWatchList(userEmail, movieId);
+    }
+
+    private void addToWatchList(String userEmail, Integer movieId) throws IOException {
         int ageLimit = movies.get(movieId).getAgeLimit();
         users.get(userEmail).addToWatchList(movieId, ageLimit);
+    }
+
+    private void removeFromWatchList(String userEmail, Integer movieId) throws IOException {
+        users.get(userEmail).removeFromWatchList(movieId);
     }
 
 }

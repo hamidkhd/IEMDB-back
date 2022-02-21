@@ -18,6 +18,7 @@ public class User {
         if (movieAlreadyExists(movieId) || ageLimitError(ageLimit))
             return;
         watchList.add(movieId);
+        CommandHandler.printOutput(new Output(true, ""));
     }
 
     private boolean movieAlreadyExists(Integer movieId) throws JsonProcessingException {
@@ -36,6 +37,15 @@ public class User {
             return true;
         }
         return false;
+    }
+
+    public void removeFromWatchList(Integer movieId) throws JsonProcessingException {
+        if (! watchList.contains(movieId)) {
+            CommandHandler.printOutput(new Output(false, "MovieNotFound"));
+            return;
+        }
+        watchList.remove(movieId);
+        CommandHandler.printOutput(new Output(true, ""));
     }
 
     public String getEmail() {
