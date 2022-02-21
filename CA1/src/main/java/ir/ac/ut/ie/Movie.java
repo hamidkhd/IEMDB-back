@@ -13,7 +13,7 @@ public class Movie {
     private Integer id;
     private String name;
     private String summary;
-    private Date releaseDate;
+    private String releaseDate;
     private String director;
     private List<String> writers;
     private List<String> genres;
@@ -67,7 +67,10 @@ public class Movie {
         movie.put("director", director);
         ArrayNode genreArrayNode = mapper.valueToTree(genres);
         movie.putArray("genres").addAll(genreArrayNode);
-        movie.put("rating", rating);
+        if (ratingCount == 0)
+            movie.put("rating", "null");
+        else
+            movie.put("rating", rating);
     }
 
     public void printMovieInformation(ObjectMapper mapper, Map<Integer, Actor> actors) throws JsonProcessingException {
@@ -76,7 +79,6 @@ public class Movie {
         movie.put("name", name);
         movie.put("summary", summary);
         DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-        String releaseDate = dateFormat.format(this.releaseDate);
         movie.put("releaseDate", releaseDate);
         movie.put("director", director);
         ArrayNode writersArray = mapper.valueToTree(writers);
@@ -89,7 +91,11 @@ public class Movie {
         ArrayNode actorsArrayNode = mapper.valueToTree(actorsObjNode);
         String actorsString = mapper.writeValueAsString(actorsArrayNode);
         movie.put("cast", actorsString);
-        movie.put("rating", rating);
+        if (ratingCount == 0)
+            movie.put("rating", "null");
+        else
+            movie.put("rating", rating);
+        movie.put("duration", duration);
         movie.put("ageLimit", ageLimit);
         List<ObjectNode> commentsObjNodes = new ArrayList<>();
         for (Map.Entry<Integer, Comment> entry: comments.entrySet())
@@ -118,7 +124,7 @@ public class Movie {
     public String getSummary() {
         return summary;
     }
-    public Date getReleaseDate() {
+    public String getReleaseDate() {
         return releaseDate;
     }
     public String getDirector() {

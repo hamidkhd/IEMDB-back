@@ -39,10 +39,7 @@ public class MainSystem {
             existingActors.get(actor.getId()).update(actor);
         else
             existingActors.put(actor.getId(), actor);
-        CommandHandler.printOutput(new Output(true, ""));
-//        Calendar c = Calendar.getInstance();
-//        c.setTime(actor.getBirthDate());
-//        System.out.println(c.get(Calendar.MONTH + 1));
+        CommandHandler.printOutput(new Output(true, "actor added successfully"));
     }
 
     public void addMovie(String data) throws IOException {
@@ -58,7 +55,7 @@ public class MainSystem {
             movie.initialValues();
             movies.put(movie.getId(), movie);
         }
-        CommandHandler.printOutput(new Output(true, ""));
+        CommandHandler.printOutput(new Output(true, "movie added successfully"));
     }
 
     private boolean checkCastExist(List<Integer> cast) {
@@ -72,7 +69,7 @@ public class MainSystem {
     public void addUser(String data) throws IOException {
         User user = mapper.readValue(data, User.class);
         users.put(user.getEmail(), user);
-        CommandHandler.printOutput(new Output(true, ""));
+        CommandHandler.printOutput(new Output(true, "user added successfully"));
     }
 
     public void addComment(String data) throws IOException {
@@ -81,9 +78,8 @@ public class MainSystem {
             return;
         movies.get(comment.getMovieId()).addComment(comment, commentId);
         comments.put(commentId, comment);
+        CommandHandler.printOutput(new Output(true, "comment with id " + commentId.toString() + " added successfully"));
         commentId += 1;
-        CommandHandler.printOutput(new Output(true, ""));
-
     }
 
     private boolean userNotFound(String userEmail) throws JsonProcessingException {
@@ -117,7 +113,7 @@ public class MainSystem {
         if (rate.hasError())
             return;
         movies.get(rate.getMovieId()).addRate(rate);
-        CommandHandler.printOutput(new Output(true, ""));
+        CommandHandler.printOutput(new Output(true, "movie rated successfully"));
     }
 
     public void voteComment(String data) throws IOException {
@@ -127,7 +123,7 @@ public class MainSystem {
         if (vote.hasError())
             return;
         comments.get(vote.getCommentId()).addVote(vote);
-        CommandHandler.printOutput(new Output(true, ""));
+        CommandHandler.printOutput(new Output(true, "comment voted successfully"));
     }
 
     public void watchListHandler(String data, boolean add) throws IOException {

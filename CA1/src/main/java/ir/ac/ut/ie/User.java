@@ -21,7 +21,7 @@ public class User {
         if (movieAlreadyExists(movieId) || ageLimitError(ageLimit))
             return;
         watchList.add(movieId);
-        CommandHandler.printOutput(new Output(true, ""));
+        CommandHandler.printOutput(new Output(true, "movie added to watchlist successfully"));
     }
 
     private boolean movieAlreadyExists(Integer movieId) throws JsonProcessingException {
@@ -48,7 +48,7 @@ public class User {
             return;
         }
         watchList.remove(movieId);
-        CommandHandler.printOutput(new Output(true, ""));
+        CommandHandler.printOutput(new Output(true, "movie removed from watchlist successfully"));
     }
 
     public void getWatchList(ObjectMapper mapper, Map<Integer, Movie> movies) throws JsonProcessingException {
