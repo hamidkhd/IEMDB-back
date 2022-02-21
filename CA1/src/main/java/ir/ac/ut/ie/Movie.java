@@ -101,6 +101,13 @@ public class Movie {
         CommandHandler.printOutput(new Output(true, data));
     }
 
+    public boolean genreMatch(String genre) {
+        for (String curGenre: genres)
+            if (curGenre.equals(genre))
+                return true;
+        return false;
+    }
+
 
     public Integer getId() {
         return id;

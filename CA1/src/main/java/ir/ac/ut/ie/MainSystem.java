@@ -170,6 +170,23 @@ public class MainSystem {
         movies.get(id).printMovieInformation(mapper, existingActors);
     }
 
+    public void getMoviesByGenre(String data) throws IOException {
+        String genre = mapper.readTree(data).get("genre").asText();
+        List<ObjectNode> moviesObjectNode = new ArrayList<>();
+        for (Map.Entry<Integer, Movie> entry: movies.entrySet()) {
+            if (entry.getValue().genreMatch(genre)) {
+                ObjectNode movie = mapper.createObjectNode();
+                entry.getValue().createInformationJson(mapper, movie);
+                moviesObjectNode.add(movie);
+            }
+        }
+        ObjectNode moviesListByGenre = mapper.createObjectNode();
+        ArrayNode moviesArrayNode = mapper.valueToTree(moviesObjectNode);
+        moviesListByGenre.putArray("MoviesListByGenre").addAll(moviesArrayNode);
+        String outputData = mapper.writeValueAsString(moviesListByGenre);
+        CommandHandler.printOutput(new Output(true, outputData));
+    }
+
     public void getWatchList(String data) throws IOException {
         String userEmail = mapper.readTree(data).get("userEmail").asText();
         if (userNotFound(userEmail))
