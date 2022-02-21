@@ -1,5 +1,9 @@
 package ir.ac.ut.ie;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.*;
 
 public class Movie {
@@ -52,6 +56,15 @@ public class Movie {
             ratingCount += 1;
         }
         rates.put(rate.getUserEmail(), (int) rate.getScore());
+    }
+
+    public void createInformationString(ObjectMapper mapper, ObjectNode movie) {
+        movie.put("movieId", id);
+        movie.put("name", name);
+        movie.put("director", director);
+        ArrayNode genreArrayNode = mapper.valueToTree(genres);
+        movie.putArray("genres").addAll(genreArrayNode);
+        movie.put("rating", rating);
     }
 
 

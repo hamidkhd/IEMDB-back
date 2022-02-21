@@ -26,7 +26,9 @@ public class CommandHandler {
         while (true) {
             List<String> inputArr = getInput();
             String command = inputArr.get(0);
-            String data = inputArr.get(1);
+            String data = "";
+            if (inputArr.size() > 1)
+                data = inputArr.get(1);
             commandHandler(command, data);
         }
     }
@@ -35,9 +37,8 @@ public class CommandHandler {
         List <String> input_arr = new ArrayList<>();
         String s = input.nextLine();
         String[] commandArr = s.split(" ", 2);
-
-        input_arr.add(commandArr[0]);
-        input_arr.add(commandArr[1]);
+        for (int i=0; i<commandArr.length; i++)
+            input_arr.add(commandArr[i]);
 
         return input_arr;
     }
@@ -67,6 +68,9 @@ public class CommandHandler {
                 break;
             case "removeFromWatchList":
                 mainSystem.watchListHandler(data, false);
+                break;
+            case "getMoviesList":
+                mainSystem.getMoviesList();
                 break;
         }
     }

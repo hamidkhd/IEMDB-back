@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 
 import java.io.IOException;
@@ -146,6 +148,18 @@ public class MainSystem {
 
     private void removeFromWatchList(String userEmail, Integer movieId) throws IOException {
         users.get(userEmail).removeFromWatchList(movieId);
+    }
+
+    public void getMoviesList() throws JsonProcessingException {
+        List<ObjectNode> objects = new ArrayList<>();
+        for (Map.Entry<Integer, Movie> entry : movies.entrySet()) {
+            ObjectNode movie = mapper.createObjectNode();
+            entry.getValue().createInformationString(mapper, movie);
+            objects.add(movie);
+        }
+        ArrayNode arrayNode = mapper.valueToTree(objects);
+        String data = mapper.writeValueAsString(arrayNode);
+        CommandHandler.printOutput(new Output(true, data));
     }
 
 }
