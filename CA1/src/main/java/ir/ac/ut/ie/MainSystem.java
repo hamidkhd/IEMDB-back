@@ -155,7 +155,9 @@ public class MainSystem {
             objects.add(movie);
         }
         ArrayNode arrayNode = mapper.valueToTree(objects);
-        String data = mapper.writeValueAsString(arrayNode);
+        ObjectNode movieList = mapper.createObjectNode();
+        movieList.putArray("MoviesList").addAll(arrayNode);
+        String data = mapper.writeValueAsString(movieList);
         CommandHandler.printOutput(new Output(true, data));
     }
 
