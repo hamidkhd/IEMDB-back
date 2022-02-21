@@ -59,6 +59,9 @@ public class CommandHandler {
             case "rateMovie":
                 mainSystem.rateMovie(data);
                 break;
+            case "voteComment":
+                mainSystem.voteComment(data);
+                break;
         }
     }
 

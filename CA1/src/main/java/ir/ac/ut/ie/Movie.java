@@ -17,14 +17,12 @@ public class Movie {
     public float rating;
     private int ratingCount;
     private Map<Integer, Comment> comments;
-    private int commentId;
     private Map<String, Integer> rates;
 
     public void initialValues() {
         rating = 0;
         ratingCount = 0;
         comments = new HashMap<>();
-        commentId = 1;
         rates = new HashMap<>();
     }
 
@@ -41,10 +39,9 @@ public class Movie {
         ageLimit = updatedMovie.getAgeLimit();
     }
 
-    public void addComment(Comment comment) {
+    public void addComment(Comment comment, Integer commentId) {
         comment.initialValues(commentId);
         comments.put(commentId, comment);
-        commentId += 1;
     }
 
     public void addRate(Rate rate) {
