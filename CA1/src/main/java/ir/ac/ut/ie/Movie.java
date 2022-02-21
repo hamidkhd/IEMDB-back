@@ -89,8 +89,7 @@ public class Movie {
         for (Integer actorId: cast)
             actorsObjNode.add(actors.get(actorId).getInformation(mapper));
         ArrayNode actorsArrayNode = mapper.valueToTree(actorsObjNode);
-        String actorsString = mapper.writeValueAsString(actorsArrayNode);
-        movie.put("cast", actorsString);
+        movie.putArray("cast").addAll(actorsArrayNode);
         if (ratingCount == 0)
             movie.put("rating", "null");
         else
@@ -101,8 +100,7 @@ public class Movie {
         for (Map.Entry<Integer, Comment> entry: comments.entrySet())
             commentsObjNodes.add(entry.getValue().getInformation(mapper));
         ArrayNode commentsArrayNode = mapper.valueToTree(commentsObjNodes);
-        String commentsString = mapper.writeValueAsString(commentsArrayNode);
-        movie.put("comments", commentsString);
+        movie.putArray("comments").addAll(commentsArrayNode);
         String data = mapper.writeValueAsString(movie);
         CommandHandler.printOutput(new Output(true, data));
     }
