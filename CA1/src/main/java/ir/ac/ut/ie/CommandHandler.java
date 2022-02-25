@@ -32,7 +32,9 @@ public class CommandHandler {
                     data = inputArr.get(1);
                 commandHandler(command, data);
             }
-            catch (Exception exception) {}
+            catch (Exception exception) {
+                CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+            }
         }
     }
 

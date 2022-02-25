@@ -1,6 +1,10 @@
 package ir.ac.ut.ie;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 
 public class Vote {
     private String userEmail;
@@ -18,11 +22,12 @@ public class Vote {
         return true;
     }
 
-    public boolean checkForCommand() {
+    public boolean checkForCommand(String data) throws IOException {
         if (userEmail==null || commentId==null || vote==null)
             return false;
-        else
+        else {
             return true;
+        }
     }
 
     public String getUserEmail() {

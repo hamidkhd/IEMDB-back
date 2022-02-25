@@ -149,7 +149,7 @@ public class MainSystem {
     public void voteComment(String data) throws IOException {
         Vote vote = mapper.readValue(data, Vote.class);
 
-        if (!vote.checkForCommand())
+        if (!vote.checkForCommand(data))
             CommandHandler.printOutput(new Output(false, "InvalidCommand"));
 
         else {
@@ -225,8 +225,6 @@ public class MainSystem {
         else {
             List<ObjectNode> moviesObjectNode = new ArrayList<>();
             for (Map.Entry<Integer, Movie> entry : movies.entrySet()) {
-                System.out.println("hereee " + genre);
-                System.out.println(entry.getValue().getGenres());
                 if (entry.getValue().genreMatch(genre)) {
                     ObjectNode movie = mapper.createObjectNode();
                     entry.getValue().createInformationJson(mapper, movie);

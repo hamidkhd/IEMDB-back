@@ -10,12 +10,14 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class MainSystemTest {
+    private CommandHandler commandHandler;
     private MainSystem mainSystem;
     private ObjectMapper mapper;
     int movieId;
 
     @Before
     public void setup() throws IOException {
+        commandHandler = new CommandHandler();
         mainSystem = new MainSystem();
         mapper = new ObjectMapper();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -43,6 +45,7 @@ public class MainSystemTest {
 
     @After
     public void tearDown() {
+        commandHandler = null;
         mainSystem = null;
         mapper = null;
     }
@@ -106,7 +109,7 @@ public class MainSystemTest {
 
     @Test
     public void voteTheComment_InvalidVoteValue() throws IOException {
-        String data = "{\"userEmail\": \"hamid@gmail.com\", \"commentId\": \"2\", \"vote\": \"2\"}";
+        String data = "{\"userEmail\": \"hamid@gmail.com\", \"commentId\": \"1\", \"vote\": \"2\"}";
         Vote vote = mapper.readValue(data, Vote.class);
         assertTrue(vote.hasError());
     }
@@ -142,7 +145,7 @@ public class MainSystemTest {
 
     @Test
     public void addToWatchList_MovieNotFound() throws IOException {
-        String data = "{\"userEmail\": \"hamid@gmail.com\", \"movieId\": \"2\"}";
+        String data = "{\"userEmail\": \"hamid@gmail.com\", \"movieId\": \"3\"}";
         JsonNode jsonNode = mapper.readTree(data);
         Integer movieId = jsonNode.get("movieId").asInt();
 
