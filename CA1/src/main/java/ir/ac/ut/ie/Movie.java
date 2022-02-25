@@ -65,7 +65,7 @@ public class Movie {
         movie.put("movieId", id);
         movie.put("name", name);
         movie.put("director", director);
-        ArrayNode genreArrayNode = mapper.valueToTree(genres);
+        ArrayNode genreArrayNode = mapper.valueToTree(getGenres());
         movie.putArray("genres").addAll(genreArrayNode);
         if (ratingCount == 0)
             movie.put("rating", "null");
@@ -106,7 +106,7 @@ public class Movie {
     }
 
     public boolean genreMatch(String genre) {
-        for (String curGenre: genres)
+        for (String curGenre: getGenres())
             if (curGenre.equals(genre))
                 return true;
         return false;

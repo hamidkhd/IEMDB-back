@@ -1,26 +1,21 @@
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ir.ac.ut.ie.CommandHandler;
-import ir.ac.ut.ie.MainSystem;
-import ir.ac.ut.ie.Rate;
-import ir.ac.ut.ie.Vote;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import ir.ac.ut.ie.*;
+import org.junit.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class MainSystemTest {
-    private CommandHandler commandHandler;
     private MainSystem mainSystem;
     private ObjectMapper mapper;
+    int movieId;
 
     @Before
     public void setup() throws IOException {
-        commandHandler = new CommandHandler();
         mainSystem = new MainSystem();
         mapper = new ObjectMapper();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -48,7 +43,6 @@ public class MainSystemTest {
 
     @After
     public void tearDown() {
-        commandHandler = null;
         mainSystem = null;
         mapper = null;
     }
@@ -57,14 +51,14 @@ public class MainSystemTest {
     public void rateTheMovie_UserNotFound() throws IOException {
         String data = "{\"userEmail\": \"nazanin@gmail.com\", \"movieId\": \"3\", \"score\": \"3\"}";
         Rate rate = mapper.readValue(data, Rate.class);
-        Assert.assertEquals(false, mainSystem.getUsers().containsKey(rate.getUserEmail()));
+        assertFalse(mainSystem.getUsers().containsKey(rate.getUserEmail()));
     }
 
     @Test
     public void rateTheMovie_MovieNotFound() throws IOException {
         String data = "{\"userEmail\": \"nazanin@gmail.com\", \"movieId\": \"3\", \"score\": \"9\"}";
         Rate rate = mapper.readValue(data, Rate.class);
-        Assert.assertEquals(false, mainSystem.getMovies().containsKey(rate.getMovieId()));
+        assertFalse(mainSystem.getMovies().containsKey(rate.getMovieId()));
     }
 
     @Test
@@ -77,7 +71,7 @@ public class MainSystemTest {
                 + rate.getScore()) / (mainSystem.getMovies().get(rate.getMovieId()).getRatingCount() + 1);
 
         mainSystem.rateMovie(data);
-        Assert.assertEquals(((Object) new_rate), mainSystem.getMovies().get(rate.getMovieId()).getRating());
+        assertEquals(((Object) new_rate), mainSystem.getMovies().get(rate.getMovieId()).getRating());
     }
 
     @Test
@@ -85,7 +79,7 @@ public class MainSystemTest {
         String data = "{\"userEmail\": \"hamid@gmail.com\", \"movieId\": \"1\", \"score\": \"7\"}";
         Rate rate = mapper.readValue(data, Rate.class);
         mainSystem.rateMovie(data);
-        Assert.assertEquals("7", mainSystem.getMovies().get(rate.getMovieId()).getRates().
+        assertEquals("7", mainSystem.getMovies().get(rate.getMovieId()).getRates().
                 get(rate.getUserEmail()).toString());
     }
 
@@ -93,28 +87,28 @@ public class MainSystemTest {
     public void rateTheMovie_InvalidRateScore() throws IOException {
         String data = "{\"userEmail\": \"hamid@gmail.com\", \"movieId\": \"1\", \"score\": \"11\"}";
         Rate rate = mapper.readValue(data, Rate.class);
-        Assert.assertEquals(true, rate.hasError());
+        assertTrue(rate.hasError());
     }
 
     @Test
     public void voteTheComment_UserNotFound() throws IOException {
         String data = "{\"userEmail\": \"nazanin@gmail.com\", \"commentId\": \"1\", \"vote\": \"1\"}";
         Vote vote = mapper.readValue(data, Vote.class);
-        Assert.assertEquals(false, mainSystem.getUsers().containsKey(vote.getUserEmail()));
+        assertFalse(mainSystem.getUsers().containsKey(vote.getUserEmail()));
     }
 
     @Test
     public void voteTheComment_CommentNotFound() throws IOException {
         String data = "{\"userEmail\": \"hamid@gmail.com\", \"commentId\": \"2\", \"vote\": \"1\"}";
         Vote vote = mapper.readValue(data, Vote.class);
-        Assert.assertEquals(false, mainSystem.getComments().containsKey(vote.getCommentId()));
+        assertFalse(mainSystem.getComments().containsKey(vote.getCommentId()));
     }
 
     @Test
     public void voteTheComment_InvalidVoteValue() throws IOException {
         String data = "{\"userEmail\": \"hamid@gmail.com\", \"commentId\": \"2\", \"vote\": \"2\"}";
         Vote vote = mapper.readValue(data, Vote.class);
-        Assert.assertEquals(true, vote.hasError());
+        assertTrue(vote.hasError());
     }
 
     @Test
@@ -124,7 +118,7 @@ public class MainSystemTest {
         Integer new_vote = mainSystem.getComments().get(vote.getCommentId()).getLike()
                 + mainSystem.getComments().get(vote.getCommentId()).getDislike() + vote.getVote();
         mainSystem.voteComment(data);
-        Assert.assertEquals(((Object) new_vote), mainSystem.getComments().get(vote.getCommentId()).getLike()
+        assertEquals(((Object) new_vote), mainSystem.getComments().get(vote.getCommentId()).getLike()
             + mainSystem.getComments().get(vote.getCommentId()).getDislike());
     }
 
@@ -133,7 +127,7 @@ public class MainSystemTest {
         String data = "{\"userEmail\": \"hamid@gmail.com\", \"commentId\": \"1\", \"vote\": \"1\"}";
         Vote vote = mapper.readValue(data, Vote.class);
         mainSystem.voteComment(data);
-        Assert.assertEquals("1", mainSystem.getComments().get(vote.getCommentId()).getVotes().
+        assertEquals("1", mainSystem.getComments().get(vote.getCommentId()).getVotes().
                 get(vote.getUserEmail()).toString());
     }
 
@@ -143,7 +137,7 @@ public class MainSystemTest {
         JsonNode jsonNode = mapper.readTree(data);
         String userEmail = jsonNode.get("userEmail").asText();
 
-        Assert.assertEquals(false, mainSystem.getUsers().containsKey(userEmail));
+        assertFalse(mainSystem.getUsers().containsKey(userEmail));
     }
 
     @Test
@@ -152,7 +146,7 @@ public class MainSystemTest {
         JsonNode jsonNode = mapper.readTree(data);
         Integer movieId = jsonNode.get("movieId").asInt();
 
-        Assert.assertEquals(false, mainSystem.getMovies().containsKey(movieId));
+        assertFalse(mainSystem.getMovies().containsKey(movieId));
     }
 
     @Test
@@ -163,7 +157,7 @@ public class MainSystemTest {
         Integer movieId = jsonNode.get("movieId").asInt();
         mainSystem.addToWatchList(userEmail, movieId);
 
-        Assert.assertEquals(true, mainSystem.getUsers().get(userEmail).movieAlreadyExists(movieId));
+        assertTrue(mainSystem.getUsers().get(userEmail).movieAlreadyExists(movieId));
     }
 
     @Test
@@ -175,7 +169,7 @@ public class MainSystemTest {
 
         int ageLimit = mainSystem.getMovies().get(movieId).getAgeLimit();
 
-        Assert.assertEquals(false, mainSystem.getUsers().get(userEmail).ageLimitError(ageLimit));
+        assertFalse(mainSystem.getUsers().get(userEmail).ageLimitError(ageLimit));
     }
 
     @Test
@@ -188,20 +182,29 @@ public class MainSystemTest {
         mainSystem.addToWatchList(userEmail, movieId);
         Integer watchList_size_after_adding = mainSystem.getUsers().get(userEmail).getWatchList().size();
 
-        Assert.assertEquals((Object) (watchlist_size_before_adding+1), watchList_size_after_adding);
+       assertEquals((Object) (watchlist_size_before_adding+1), watchList_size_after_adding);
+    }
+
+    public void addMovieWithSpecificGenre(String genre) throws IOException {
+        List<String> genres = new ArrayList<>();
+        genres.add(genre);
+        Movie actionMovie = spy(Movie.class);
+        when(actionMovie.getId()).thenReturn(movieId);
+        when(actionMovie.getGenres()).thenReturn(genres);
+        mainSystem.addMovie(actionMovie);
     }
 
     @Test
     public void getMoviesByGenre_MovieFound() throws IOException {
-        String data = "{\"genre\": \"Mystery\"}";
-        String genre = mapper.readTree(data).get("genre").asText();
-//        Assert.assertEquals();
+        addMovieWithSpecificGenre("action");
+        String data = "{\"genre\": \"action\"}";
+        mainSystem.getMoviesByGenre(data);
+        verify(mainSystem.getMovies().get(movieId)).createInformationJson(any(ObjectMapper.class), any(ObjectNode.class));
     }
 
     @Test
     public void getMoviesByGenre_MovieNotFound() throws IOException {
-        String data = "{\"genre\": \"Mystery\"}";
-        String genre = mapper.readTree(data).get("genre").asText();
-//        Assert.assertEquals();
+        addMovieWithSpecificGenre("action");
+        assertFalse(mainSystem.getMovies().get(movieId).genreMatch("Mystery"));
     }
 }
