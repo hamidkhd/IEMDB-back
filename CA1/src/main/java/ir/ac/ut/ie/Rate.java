@@ -15,6 +15,13 @@ public class Rate {
         return false;
     }
 
+    public boolean checkForCommand() {
+        if (userEmail==null || movieId==null || score==0.0f)
+            return false;
+        else
+            return true;
+    }
+
     public String getUserEmail() {
         return userEmail;
     }

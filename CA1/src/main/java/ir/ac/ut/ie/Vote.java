@@ -5,13 +5,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public class Vote {
     private String userEmail;
     private Integer commentId;
-    private int vote;
+    private Integer vote;
 
     public boolean hasError() throws JsonProcessingException {
+        if (!(vote instanceof Integer)) {
+            CommandHandler.printOutput(new Output(false, "InvalidVoteValue"));
+            return true;
+        }
         if (vote == 1 || vote == -1 || vote == 0)
             return false;
         CommandHandler.printOutput(new Output(false, "InvalidVoteValue"));
         return true;
+    }
+
+    public boolean checkForCommand() {
+        if (userEmail==null || commentId==null || vote==null)
+            return false;
+        else
+            return true;
     }
 
     public String getUserEmail() {

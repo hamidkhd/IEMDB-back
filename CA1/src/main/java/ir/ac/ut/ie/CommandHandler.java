@@ -24,12 +24,15 @@ public class CommandHandler {
 
     private void main_loop() throws IOException {
         while (true) {
-            List<String> inputArr = getInput();
-            String command = inputArr.get(0);
-            String data = "";
-            if (inputArr.size() > 1)
-                data = inputArr.get(1);
-            commandHandler(command, data);
+            try {
+                List<String> inputArr = getInput();
+                String command = inputArr.get(0);
+                String data = "";
+                if (inputArr.size() > 1)
+                    data = inputArr.get(1);
+                commandHandler(command, data);
+            }
+            catch (Exception exception) {}
         }
     }
 
@@ -43,7 +46,7 @@ public class CommandHandler {
         return input_arr;
     }
 
-    private void commandHandler(String command,  String data) throws IOException {
+    public void commandHandler(String command,  String data) throws IOException {
         switch (command) {
             case "addActor":
                 mainSystem.addActor(data);
@@ -70,7 +73,7 @@ public class CommandHandler {
                 mainSystem.watchListHandler(data, false);
                 break;
             case "getMoviesList":
-                mainSystem.getMoviesList();
+                mainSystem.getMoviesList(data);
                 break;
             case "getMovieById":
                 mainSystem.getMovieById(data);
@@ -80,6 +83,9 @@ public class CommandHandler {
                 break;
             case "getWatchList":
                 mainSystem.getWatchList(data);
+                break;
+            default:
+                CommandHandler.printOutput(new Output(false, "InvalidCommand"));
                 break;
         }
     }

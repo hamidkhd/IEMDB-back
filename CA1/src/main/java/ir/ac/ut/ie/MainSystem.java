@@ -35,27 +35,39 @@ public class MainSystem {
 
     public void addActor(String data) throws IOException {
         Actor actor = mapper.readValue(data, Actor.class);
-        if (existingActors.containsKey(actor.getId()))
-            existingActors.get(actor.getId()).update(actor);
-        else
-            existingActors.put(actor.getId(), actor);
-        CommandHandler.printOutput(new Output(true, "actor added successfully"));
+
+        if (! actor.checkForCommand())
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+
+        else {
+            if (existingActors.containsKey(actor.getId()))
+                existingActors.get(actor.getId()).update(actor);
+            else
+                existingActors.put(actor.getId(), actor);
+            CommandHandler.printOutput(new Output(true, "actor added successfully"));
+        }
     }
 
     public void addMovie(String data) throws IOException {
         Movie movie = mapper.readValue(data, Movie.class);
-        boolean noError = checkCastExist(movie.getCast());
-        if (! noError) {
-            CommandHandler.printOutput(new Output(false, "ActorNotFound"));
-            return;
-        }
-        if (movies.containsKey(movie.getId()))
-            movies.get(movie.getId()).update(movie);
+
+        if (! movie.checkForCommand())
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+
         else {
-            movie.initialValues();
-            movies.put(movie.getId(), movie);
+            boolean noError = checkCastExist(movie.getCast());
+            if (!noError) {
+                CommandHandler.printOutput(new Output(false, "ActorNotFound"));
+                return;
+            }
+            if (movies.containsKey(movie.getId()))
+                movies.get(movie.getId()).update(movie);
+            else {
+                movie.initialValues();
+                movies.put(movie.getId(), movie);
+            }
+            CommandHandler.printOutput(new Output(true, "movie added successfully"));
         }
-        CommandHandler.printOutput(new Output(true, "movie added successfully"));
     }
 
     private boolean checkCastExist(List<Integer> cast) {
@@ -68,18 +80,30 @@ public class MainSystem {
 
     public void addUser(String data) throws IOException {
         User user = mapper.readValue(data, User.class);
-        users.put(user.getEmail(), user);
-        CommandHandler.printOutput(new Output(true, "user added successfully"));
+
+        if (! user.checkForCommand())
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+
+        else {
+            users.put(user.getEmail(), user);
+            CommandHandler.printOutput(new Output(true, "user added successfully"));
+        }
     }
 
     public void addComment(String data) throws IOException {
         Comment comment = mapper.readValue(data, Comment.class);
-        if (userNotFound(comment.getUserEmail()) || movieNotFound(comment.getMovieId()))
-            return;
-        movies.get(comment.getMovieId()).addComment(comment, commentId);
-        comments.put(commentId, comment);
-        CommandHandler.printOutput(new Output(true, "comment with id " + commentId.toString() + " added successfully"));
-        commentId += 1;
+
+        if (! comment.checkForCommand())
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+
+        else {
+            if (userNotFound(comment.getUserEmail()) || movieNotFound(comment.getMovieId()))
+                return;
+            movies.get(comment.getMovieId()).addComment(comment, commentId);
+            comments.put(commentId, comment);
+            CommandHandler.printOutput(new Output(true, "comment with id " + commentId.toString() + " added successfully"));
+            commentId += 1;
+        }
     }
 
     private boolean userNotFound(String userEmail) throws JsonProcessingException {
@@ -108,46 +132,67 @@ public class MainSystem {
 
     public void rateMovie(String data) throws IOException {
         Rate rate = mapper.readValue(data, Rate.class);
-        if (userNotFound(rate.getUserEmail()) || movieNotFound(rate.getMovieId()))
-            return;
-        if (rate.hasError())
-            return;
-        movies.get(rate.getMovieId()).addRate(rate);
-        CommandHandler.printOutput(new Output(true, "movie rated successfully"));
+
+        if (!rate.checkForCommand())
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+
+        else {
+            if (userNotFound(rate.getUserEmail()) || movieNotFound(rate.getMovieId()))
+                return;
+            if (rate.hasError())
+                return;
+            movies.get(rate.getMovieId()).addRate(rate);
+            CommandHandler.printOutput(new Output(true, "movie rated successfully"));
+        }
     }
 
     public void voteComment(String data) throws IOException {
         Vote vote = mapper.readValue(data, Vote.class);
-        if (userNotFound(vote.getUserEmail()) || commentNotFound(vote.getCommentId()))
-            return;
-        if (vote.hasError())
-            return;
-        comments.get(vote.getCommentId()).addVote(vote);
-        CommandHandler.printOutput(new Output(true, "comment voted successfully"));
+
+        if (!vote.checkForCommand())
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+
+        else {
+            if (userNotFound(vote.getUserEmail()) || commentNotFound(vote.getCommentId()))
+                return;
+            if (vote.hasError())
+                return;
+            comments.get(vote.getCommentId()).addVote(vote);
+            CommandHandler.printOutput(new Output(true, "comment voted successfully"));
+        }
     }
 
     public void watchListHandler(String data, boolean add) throws IOException {
         JsonNode jsonNode = mapper.readTree(data);
         String userEmail = jsonNode.get("userEmail").asText();
         Integer movieId = jsonNode.get("movieId").asInt();
-        if (userNotFound(userEmail) || movieNotFound(movieId))
-            return;
-        if (add)
-            addToWatchList(userEmail, movieId);
-        else
-            removeFromWatchList(userEmail, movieId);
+
+        if (userEmail==null || movieId==null)
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+
+        else {
+            if (userNotFound(userEmail) || movieNotFound(movieId))
+                return;
+            if (add)
+                addToWatchList(userEmail, movieId);
+            else
+                removeFromWatchList(userEmail, movieId);
+        }
     }
 
-    private void addToWatchList(String userEmail, Integer movieId) throws IOException {
+    public void addToWatchList(String userEmail, Integer movieId) throws IOException {
         int ageLimit = movies.get(movieId).getAgeLimit();
         users.get(userEmail).addToWatchList(movieId, ageLimit);
     }
 
-    private void removeFromWatchList(String userEmail, Integer movieId) throws IOException {
+    public void removeFromWatchList(String userEmail, Integer movieId) throws IOException {
         users.get(userEmail).removeFromWatchList(movieId);
     }
 
-    public void getMoviesList() throws JsonProcessingException {
+    public void getMoviesList(String inputData) throws JsonProcessingException {
+        if (inputData.length() > 0)
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+
         List<ObjectNode> objects = new ArrayList<>();
         for (Map.Entry<Integer, Movie> entry : movies.entrySet()) {
             ObjectNode movie = mapper.createObjectNode();
@@ -163,33 +208,59 @@ public class MainSystem {
 
     public void getMovieById(String data) throws IOException {
         Integer id = mapper.readTree(data).get("movieId").asInt();
-        if (movieNotFound(id))
-            return;
-        movies.get(id).printMovieInformation(mapper, existingActors);
+        if (id==null)
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+        else {
+            if (movieNotFound(id))
+                return;
+            movies.get(id).printMovieInformation(mapper, existingActors);
+        }
     }
 
     public void getMoviesByGenre(String data) throws IOException {
         String genre = mapper.readTree(data).get("genre").asText();
-        List<ObjectNode> moviesObjectNode = new ArrayList<>();
-        for (Map.Entry<Integer, Movie> entry: movies.entrySet()) {
-            if (entry.getValue().genreMatch(genre)) {
-                ObjectNode movie = mapper.createObjectNode();
-                entry.getValue().createInformationJson(mapper, movie);
-                moviesObjectNode.add(movie);
+
+        if (genre==null)
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+        else {
+            List<ObjectNode> moviesObjectNode = new ArrayList<>();
+            for (Map.Entry<Integer, Movie> entry : movies.entrySet()) {
+                if (entry.getValue().genreMatch(genre)) {
+                    ObjectNode movie = mapper.createObjectNode();
+                    entry.getValue().createInformationJson(mapper, movie);
+                    moviesObjectNode.add(movie);
+                }
             }
+            ObjectNode moviesListByGenre = mapper.createObjectNode();
+            ArrayNode moviesArrayNode = mapper.valueToTree(moviesObjectNode);
+            moviesListByGenre.putArray("MoviesListByGenre").addAll(moviesArrayNode);
+            String outputData = mapper.writeValueAsString(moviesListByGenre);
+            CommandHandler.printOutput(new Output(true, outputData));
         }
-        ObjectNode moviesListByGenre = mapper.createObjectNode();
-        ArrayNode moviesArrayNode = mapper.valueToTree(moviesObjectNode);
-        moviesListByGenre.putArray("MoviesListByGenre").addAll(moviesArrayNode);
-        String outputData = mapper.writeValueAsString(moviesListByGenre);
-        CommandHandler.printOutput(new Output(true, outputData));
     }
 
     public void getWatchList(String data) throws IOException {
         String userEmail = mapper.readTree(data).get("userEmail").asText();
-        if (userNotFound(userEmail))
-            return;
-        users.get(userEmail).getWatchList(mapper, movies);
+        if (userEmail==null)
+            CommandHandler.printOutput(new Output(false, "InvalidCommand"));
+
+        else {
+            if (userNotFound(userEmail))
+                return;
+            users.get(userEmail).getWatchList(mapper, movies);
+        }
+    }
+
+    public Map<String, User> getUsers() {
+        return users;
+    }
+
+    public Map<Integer, Movie> getMovies() {
+        return movies;
+    }
+
+    public Map<Integer, Comment> getComments() {
+        return comments;
     }
 
 }

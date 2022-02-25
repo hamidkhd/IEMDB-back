@@ -49,6 +49,13 @@ public class Comment {
         return commentMapper;
     }
 
+    public boolean checkForCommand() {
+        if (userEmail==null || movieId==null || text==null)
+            return false;
+        else
+            return true;
+    }
+
     public int getCommentId() {
         return commentId;
     }
@@ -66,5 +73,8 @@ public class Comment {
     }
     public int getDislike() {
         return dislike;
+    }
+    public Map<String, Integer> getVotes() {
+        return votes;
     }
 }

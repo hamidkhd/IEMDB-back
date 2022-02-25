@@ -24,7 +24,7 @@ public class User {
         CommandHandler.printOutput(new Output(true, "movie added to watchlist successfully"));
     }
 
-    private boolean movieAlreadyExists(Integer movieId) throws JsonProcessingException {
+    public boolean movieAlreadyExists(Integer movieId) throws JsonProcessingException {
         if (watchList.contains(movieId)) {
             CommandHandler.printOutput(new Output(false, "MovieAlreadyExists"));
             return true;
@@ -32,7 +32,7 @@ public class User {
         return false;
     }
 
-    private boolean ageLimitError(int ageLimit) throws JsonProcessingException {
+    public boolean ageLimitError(int ageLimit) throws JsonProcessingException {
         LocalDate birthDate = new java.sql.Date(this.birthDate.getTime()).toLocalDate();
         int age = Period.between(birthDate, LocalDate.now()).getYears();
         if (age < ageLimit) {
@@ -65,6 +65,13 @@ public class User {
         CommandHandler.printOutput(new Output(true, data));
     }
 
+    public boolean checkForCommand() {
+        if (email==null || password==null || nickname==null || name==null || birthDate==null)
+            return false;
+        else
+            return true;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -79,6 +86,9 @@ public class User {
     }
     public Date getBirthDate() {
         return birthDate;
+    }
+    public Set<Integer> getWatchList() {
+        return watchList;
     }
 
 }

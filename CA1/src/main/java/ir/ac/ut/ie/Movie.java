@@ -112,6 +112,14 @@ public class Movie {
         return false;
     }
 
+    public boolean checkForCommand() {
+        if (id==null || name==null || summary==null || releaseDate==null || director==null || writers==null
+                || genres==null || cast==null || imdbRate==0.0f || duration==0 || ageLimit==0)
+            return false;
+        else
+            return true;
+    }
+
 
     public Integer getId() {
         return id;
@@ -155,4 +163,5 @@ public class Movie {
     public Map<Integer, Comment> getComments() {
         return comments;
     }
+    public Map<String, Integer> getRates() { return rates; }
 }

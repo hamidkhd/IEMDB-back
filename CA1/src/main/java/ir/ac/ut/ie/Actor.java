@@ -27,6 +27,13 @@ public class Actor {
         return objectNode;
     }
 
+    public boolean checkForCommand() {
+        if (id==null || name==null || birthDate==null || nationality==null)
+            return false;
+        else
+            return true;
+    }
+
     public Integer getId() {
         return id;
     }
