@@ -27,7 +27,7 @@ public class Server {
         server.startServer();
     }
 
-    private void setTakenInformation() throws Exception {
+    public void setTakenInformation() throws Exception {
         try {
             for (Actor actor : DataBase.getActorsList())
                 MainSystem.addActorFromDataBase(actor);

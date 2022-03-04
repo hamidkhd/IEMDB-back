@@ -613,4 +613,11 @@ public class MainSystem {
         }
     }
 
+    public static Map<Integer, Movie> getMovies() {
+        return movies;
+    }
+
+    public static Map<String, User> getUsers() {
+        return users;
+    }
 }
