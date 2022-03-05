@@ -44,7 +44,7 @@ public class DataBase {
         return line;
     }
 
-    static void setInformation() throws IOException {
+    static void setInformation() {
         try {
             setActorsList();
             setMoviesList();
@@ -52,7 +52,7 @@ public class DataBase {
             setCommentsList();
         }
         catch (Exception exception) {
-            System.out.println(exception);
+            System.out.println(exception.getMessage());
         }
     }
 

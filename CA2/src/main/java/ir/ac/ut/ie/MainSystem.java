@@ -205,6 +205,7 @@ public class MainSystem {
 
                 String user_id = context.pathParam("user_id");
                 User user = DataBase.getUsers().get(user_id);
+                DataBase.userNotFound(user_id);
 
                 document.getElementById("name").text("Name: " + user.getName());
                 document.getElementById("nickname").text("Nickname: " + user.getNickname());
@@ -213,8 +214,6 @@ public class MainSystem {
                     Movie movie = DataBase.getMovieById(movieId);
                     table.get(0).append(movie.showUserWatchListHandler(user_id));
                 }
-
-               DataBase.userNotFound(user_id);
 
                 context.contentType("text/html");
                 context.result(document.toString());
@@ -250,7 +249,7 @@ public class MainSystem {
                 context.redirect("/200");
             } catch (MovieNotFound | UserNotFound exception) {
                 context.redirect("/404");
-            } catch (AgeLimitError exception) {
+            } catch (AgeLimitError | MovieAlreadyExists exception) {
                 context.redirect("/403");
             }
         }
