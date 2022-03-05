@@ -29,7 +29,6 @@ public class ServerTest {
     public void setup() throws Exception {
         dataBase = new DataBase();
         server = new Server(8080);
-        server.setTakenInformation();
         server.startServer();
         client = HttpClient.newHttpClient();
     }
@@ -44,12 +43,12 @@ public class ServerTest {
     private String getUserId(boolean valid) {
         if (!valid)
             return "gmail.com";
-        User user = DataBase.getUsersList()[0];
+        User user = DataBase.getUsers().get(0);
         return user.getEmail();
     }
 
     private int getMovieId() {
-        Movie movie = DataBase.getMoviesList()[0];
+        Movie movie = DataBase.getMovies().get(0);
         return movie.getId();
     }
 
@@ -76,7 +75,7 @@ public class ServerTest {
 
     @Test
     public void whenRateMovieWithValidParametersThenRateIsUpdated() throws Exception {
-        Movie movie = MainSystem.getMovies().get(getMovieId());
+        Movie movie = DataBase.getMovies().get(getMovieId());
         int prevRateSum = (int) movie.getRating() * movie.getRatingCount();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("http://localhost:8080/rateMovie/" + getUserId(true) + "/" + getMovieId() + "/1"))
@@ -89,7 +88,7 @@ public class ServerTest {
 
     @Test
     public void whenUserRatesMovieTwiceThenRateIsReplaced() throws Exception {
-        Movie movie = MainSystem.getMovies().get(getMovieId());
+        Movie movie = DataBase.getMovies().get(getMovieId());
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("http://localhost:8080/rateMovie/" + getUserId(true) + "/" + getMovieId() + "/1"))
                 .GET()
@@ -124,7 +123,7 @@ public class ServerTest {
     public void whenMovieMatchesAgeThenIsAddedToWatchList() throws Exception {
         String userId = getUserId(true);
         HttpResponse<String> response = addMovieToWatchList();
-        assertTrue(MainSystem.getUsers().get(userId).getWatchList().contains(getMovieId()));
+        assertTrue(DataBase.getUsers().get(userId).getWatchList().contains(getMovieId()));
     }
 
     @Test
@@ -147,13 +146,13 @@ public class ServerTest {
                 .POST(HttpRequest.BodyPublishers.ofString("movie_id=" + getMovieId()))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertFalse(MainSystem.getUsers().get(userId).getWatchList().contains(getMovieId()));
+        assertFalse(DataBase.getUsers().get(userId).getWatchList().contains(getMovieId()));
     }
 
     @Test
     public void whenThereIsNoTimeLimitThenSearchByRealeseDateReturnsAllMovies() throws Exception {
         LocalDate date = LocalDate.now();
-        assertEquals(MainSystem.getMovies().size(), MainSystem.getMoviesByDate("1800-01-01", date.toString()).size());
+        assertEquals(DataBase.getMovies().size(), MainSystem.getMoviesByDate("1800-01-01", date.toString()).size());
     }
 
     @Test

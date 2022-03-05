@@ -23,26 +23,9 @@ public class Server {
     public static void main(String[] args) throws Exception {
         DataBase dataBase = new DataBase();
         Server server = new Server(8080);
-        server.setTakenInformation();
         server.startServer();
     }
 
-    public void setTakenInformation() throws Exception {
-        try {
-            for (Actor actor : DataBase.getActorsList())
-                MainSystem.addActorFromDataBase(actor);
-            for (Movie movie : DataBase.getMoviesList())
-                MainSystem.addMovieFromDataBase(movie);
-            for (User user : DataBase.getUsersList())
-                MainSystem.addUserFromDataBase(user);
-            for (Comment comment : DataBase.getCommentsList())
-                MainSystem.addCommentFromDataBase(comment);
-        } catch (IOException exception) {
-            Server.printOutput(new Output(false, "InvalidCommand"));
-        } catch (ErrorHandling exception) {
-            Server.printOutput(new Output(false, exception.getMessage()));
-        }
-    }
 
     public void startServer() throws Exception {
         app.get("/movies", new MainSystem.watchMoviesListHandler());

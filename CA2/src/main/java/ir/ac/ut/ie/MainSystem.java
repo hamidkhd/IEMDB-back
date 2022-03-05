@@ -17,11 +17,6 @@ import java.util.*;
 
 public class MainSystem {
     private static ObjectMapper mapper;
-    private static Map<Integer, Actor> existingActors;
-    private static Map<Integer, Movie> movies;
-    private static Map<String, User> users;
-    private static Map<Integer, Comment> comments;
-    private static Integer commentId;
     private static SimpleDateFormat df;
 
 
@@ -29,87 +24,6 @@ public class MainSystem {
         mapper = new ObjectMapper();
         df = new SimpleDateFormat("yyyy-MM-dd");
         mapper.setDateFormat(df);
-        existingActors = new HashMap<>();
-        movies = new HashMap<>();
-        users = new HashMap<>();
-        comments = new HashMap<>();
-        commentId = 1;
-    }
-
-
-    public static void addActorFromDataBase(Actor actor) throws Exception {
-        actor.checkForInvalidCommand();
-        if (existingActors.containsKey(actor.getId()))
-            existingActors.get(actor.getId()).update(actor);
-        else
-            existingActors.put(actor.getId(), actor);
-        Server.printOutput(new Output(true, "actor added successfully"));
-    }
-
-    public static void addMovieFromDataBase(Movie movie) throws Exception {
-        movie.checkForInvalidCommand();
-        checkCastExist(movie.getCast());
-
-        List<String> actors = new ArrayList<String>();
-        for (Integer i : movie.getCast())
-            actors.add(getExistingActors().get(i).getName());
-        movie.setCastName(actors);
-
-        if (movies.containsKey(movie.getId()))
-            movies.get(movie.getId()).update(movie);
-        else {
-            movie.initialValues();
-            movies.put(movie.getId(), movie);
-        }
-        Server.printOutput(new Output(true, "movie added successfully"));
-    }
-
-    public static void addUserFromDataBase(User user) throws Exception {
-        checkUserExist(user.getEmail());
-        users.put(user.getEmail(), user);
-        Server.printOutput(new Output(true, "user added successfully"));
-    }
-
-    public static void addCommentFromDataBase(Comment comment) throws Exception {
-        comment.checkForInvalidCommand();
-        userNotFound(comment.getUserEmail());
-        movieNotFound(comment.getMovieId());
-
-        movies.get(comment.getMovieId()).addComment(comment, commentId);
-        comments.put(commentId, comment);
-        Server.printOutput(new Output(true, "comment with id " + commentId.toString() + " added successfully"));
-        commentId += 1;
-    }
-
-
-    private static void checkCastExist(List<Integer> cast) throws Exception {
-        for (Integer id : cast)
-            if (!existingActors.containsKey(id))
-                throw new ActorNotFound();
-    }
-
-    private static void checkUserExist(String userEmail) throws Exception {
-        if (users.containsKey(userEmail))
-            throw new UserAlreadyExists();
-    }
-
-    private static void userNotFound(String userEmail) throws Exception {
-        if (!users.containsKey(userEmail))
-            throw new UserNotFound();
-    }
-
-    private static void movieNotFound(Integer movieId) throws Exception {
-        if (!movies.containsKey(movieId))
-            throw new MovieNotFound();
-    }
-
-    private static void commentNotFound(Integer commentId) throws Exception {
-        if (!comments.containsKey(commentId))
-            throw new CommentNotFound();
-    }
-
-    public static Map<Integer, Actor> getExistingActors() {
-        return existingActors;
     }
 
     static class watchMoviesListHandler implements Handler {
@@ -120,7 +34,7 @@ public class MainSystem {
                 Document document = Jsoup.parse(file, "UTF-8");
                 Elements table = document.getElementsByTag("table");
                 getMoviesList();
-                for (Movie movie : movies.values())
+                for (Movie movie : DataBase.getMovies().values())
                     table.get(0).append(movie.getHtmlTableForWatchMoviesListHandler());
 
                 context.contentType("text/html");
@@ -134,7 +48,7 @@ public class MainSystem {
 
     public static void getMoviesList() throws Exception {
         List<ObjectNode> objects = new ArrayList<>();
-        for (Map.Entry<Integer, Movie> entry : movies.entrySet()) {
+        for (Map.Entry<Integer, Movie> entry : DataBase.getMovies().entrySet()) {
             ObjectNode movie = mapper.createObjectNode();
             entry.getValue().createInformationJson(mapper, movie);
             objects.add(movie);
@@ -156,8 +70,8 @@ public class MainSystem {
                 Elements table = document.getElementsByTag("table");
 
                 String movie_id = context.pathParam("movie_id");
-                movieNotFound(Integer.valueOf(movie_id));
-                Movie movie = getMovieById(Integer.valueOf(movie_id));
+                DataBase.movieNotFound(Integer.valueOf(movie_id));
+                Movie movie = DataBase.getMovieById(Integer.valueOf(movie_id));
 
                 document.getElementById("name").text("name: " + movie.getName());
                 document.getElementById("summary").text("summary: " + movie.getSummary());
@@ -172,7 +86,7 @@ public class MainSystem {
                 document.getElementById("ageLimit").text("ageLimit: " + movie.getAgeLimit());
 
                 for (Map.Entry<Integer, Comment> comment : movie.getComments().entrySet()) {
-                    String nickname = users.get(comment.getValue().getUserEmail()).getNickname();
+                    String nickname = DataBase.getUsers().get(comment.getValue().getUserEmail()).getNickname();
                     table.get(0).append(comment.getValue().getHtmlTableForWatchMoviePageHandler(nickname));
                 }
 
@@ -188,10 +102,7 @@ public class MainSystem {
         }
     }
 
-    public static Movie getMovieById(Integer id) throws Exception {
-        movies.get(id).printMovieInformation(mapper, existingActors);
-        return movies.get(id);
-    }
+
 
     static class watchMoviePageNotLoginHandler implements Handler {
         @Override
@@ -199,8 +110,8 @@ public class MainSystem {
             try {
                 String movie_id = context.pathParam("movie_id");
                 String user_id = context.formParam("user_id");
-                userNotFound(user_id);
-                movieNotFound(Integer.valueOf(movie_id));
+                DataBase.userNotFound(user_id);
+                DataBase.movieNotFound(Integer.valueOf(movie_id));
                 context.redirect("/movies/login/" + movie_id + "/" + user_id);
             } catch (MovieNotFound | UserNotFound exception) {
                 Server.printOutput(new Output(false, exception.getMessage()));
@@ -221,8 +132,8 @@ public class MainSystem {
                 Elements table = document.getElementsByTag("table");
 
                 String movie_id = context.pathParam("movie_id");
-                movieNotFound(Integer.valueOf(movie_id));
-                Movie movie = getMovieById(Integer.valueOf(movie_id));
+                DataBase.movieNotFound(Integer.valueOf(movie_id));
+                Movie movie = DataBase.getMovieById(Integer.valueOf(movie_id));
 
                 document.getElementById("name").text("name: " + movie.getName());
                 document.getElementById("summary").text("summary: " + movie.getSummary());
@@ -237,7 +148,7 @@ public class MainSystem {
                 document.getElementById("ageLimit").text("ageLimit: " + movie.getAgeLimit());
 
                 for (Map.Entry<Integer, Comment> comment : movie.getComments().entrySet()) {
-                    String nickname = users.get(comment.getValue().getUserEmail()).getNickname();
+                    String nickname = DataBase.getUsers().get(comment.getValue().getUserEmail()).getNickname();
                     table.get(0).append(comment.getValue().watchMoviePageLoginHandler(nickname));
                 }
 
@@ -259,8 +170,8 @@ public class MainSystem {
             try {
                 String movie_id = context.pathParam("movie_id");
                 String user_id = context.pathParam("user_id");
-                userNotFound(user_id);
-                movieNotFound(Integer.valueOf(movie_id));
+                DataBase.userNotFound(user_id);
+                DataBase.movieNotFound(Integer.valueOf(movie_id));
 
                 String quantity = context.formParam("quantity");
                 String add_to = context.formParam("add_to");
@@ -297,11 +208,11 @@ public class MainSystem {
                 String actor_id = context.pathParam("actor_id");
                 List<Integer> casts = new ArrayList<>();
                 casts.add(Integer.valueOf(actor_id));
-                checkCastExist(casts);
-                Actor actor = existingActors.get(Integer.valueOf(actor_id));
+                DataBase.checkCastExist(casts);
+                Actor actor = DataBase.getExistingActors().get(Integer.valueOf(actor_id));
 
                 int act_in = 0;
-                for (Movie movie : movies.values()) {
+                for (Movie movie : DataBase.getMovies().values()) {
                     if (movie.getCast().contains(actor.getId())) {
                         table.get(0).append(movie.getHtmlTableForWatchActorPageHandler());
                         act_in += 1;
@@ -335,12 +246,12 @@ public class MainSystem {
                 Elements table = document.getElementsByTag("table");
 
                 String user_id = context.pathParam("user_id");
-                User user = users.get(user_id);
+                User user = DataBase.getUsers().get(user_id);
 
                 document.getElementById("name").text("Name: " + user.getName());
                 document.getElementById("nickname").text("Nickname: " + user.getNickname());
 
-                for (Movie movie : user.getWatchList(mapper, movies))
+                for (Movie movie : user.getWatchList(mapper, DataBase.getMovies()))
                     table.get(0).append(movie.showUserWatchListHandler(user_id));
 
                 getWatchList(user_id);
@@ -358,8 +269,8 @@ public class MainSystem {
     }
 
     public static void getWatchList(String userEmail) throws Exception {
-        userNotFound(userEmail);
-        users.get(userEmail).getWatchList(mapper, movies);
+        DataBase.userNotFound(userEmail);
+        DataBase.getUsers().get(userEmail).getWatchList(mapper, DataBase.getMovies());
     }
 
     static class removeFromUserWatchListHandler implements Handler {
@@ -382,9 +293,9 @@ public class MainSystem {
     }
 
     public static void removeFromWatchList(String userEmail, Integer movieId) throws Exception {
-        userNotFound(userEmail);
-        movieNotFound(movieId);
-        users.get(userEmail).removeFromWatchList(movieId);
+        DataBase.userNotFound(userEmail);
+        DataBase.movieNotFound(movieId);
+        DataBase.getUsers().get(userEmail).removeFromWatchList(movieId);
     }
 
 
@@ -411,10 +322,10 @@ public class MainSystem {
     }
 
     public static void addToWatchList(String userEmail, Integer movieId) throws Exception {
-        userNotFound(userEmail);
-        movieNotFound(movieId);
-        int ageLimit = movies.get(movieId).getAgeLimit();
-        users.get(userEmail).addToWatchList(movieId, ageLimit);
+        DataBase.userNotFound(userEmail);
+        DataBase.movieNotFound(movieId);
+        int ageLimit = DataBase.getMovies().get(movieId).getAgeLimit();
+        DataBase.getUsers().get(userEmail).addToWatchList(movieId, ageLimit);
     }
 
 
@@ -446,10 +357,10 @@ public class MainSystem {
         }
     }
     public static void rateMovie(Rate rate) throws Exception {
-        userNotFound(rate.getUserEmail());
-        movieNotFound(rate.getMovieId());
+        DataBase.userNotFound(rate.getUserEmail());
+        DataBase.movieNotFound(rate.getMovieId());
         rate.hasError();
-        movies.get(rate.getMovieId()).addRate(rate);
+        DataBase.getMovies().get(rate.getMovieId()).addRate(rate);
         Server.printOutput(new Output(true, "movie rated successfully"));
     }
 
@@ -481,10 +392,10 @@ public class MainSystem {
         }
     }
     public static void voteComment(Vote vote) throws Exception {
-        userNotFound(vote.getUserEmail());
-        commentNotFound(vote.getCommentId());
+        DataBase.userNotFound(vote.getUserEmail());
+        DataBase.commentNotFound(vote.getCommentId());
         vote.hasError();
-        comments.get(vote.getCommentId()).addVote(vote);
+        DataBase.getComments().get(vote.getCommentId()).addVote(vote);
         Server.printOutput(new Output(true, "comment voted successfully"));
     }
 
@@ -514,7 +425,7 @@ public class MainSystem {
     public static List<Movie> getMoviesByDate(String start_date, String end_date) throws Exception {
         List<Movie> dateMovies = new ArrayList<>();
 
-        for (Map.Entry<Integer, Movie> entry : movies.entrySet()) {
+        for (Map.Entry<Integer, Movie> entry : DataBase.getMovies().entrySet()) {
             if (df.parse(start_date).before(df.parse(entry.getValue().getReleaseDate())) &&
                     df.parse(end_date).after(df.parse(entry.getValue().getReleaseDate()))) {
                 dateMovies.add(entry.getValue());
@@ -549,7 +460,7 @@ public class MainSystem {
         List<ObjectNode> moviesObjectNode = new ArrayList<>();
         List<Movie> genreMovies = new ArrayList<>();
 
-        for (Map.Entry<Integer, Movie> entry : movies.entrySet()) {
+        for (Map.Entry<Integer, Movie> entry : DataBase.getMovies().entrySet()) {
             if (entry.getValue().genreMatch(genre)) {
                 ObjectNode movie = mapper.createObjectNode();
                 entry.getValue().createInformationJson(mapper, movie);
@@ -611,13 +522,5 @@ public class MainSystem {
                 throw exception;
             }
         }
-    }
-
-    public static Map<Integer, Movie> getMovies() {
-        return movies;
-    }
-
-    public static Map<String, User> getUsers() {
-        return users;
     }
 }
