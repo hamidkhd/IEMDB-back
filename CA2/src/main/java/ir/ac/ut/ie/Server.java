@@ -27,13 +27,13 @@ public class Server {
     }
 
 
-    public void startServer() throws Exception {
-        app.get("/movies", new MainSystem.watchMoviesListHandler());
-        app.get("/movies/:movie_id", new MainSystem.watchMoviePageHandler());
-        app.post("/movies/:movie_id", new MainSystem.watchMoviePageNotLoginHandler());
-        app.get("/movies/login/:movie_id/:user_id", new MainSystem.watchMoviePageLoginHandler());
-        app.post("/movies/login/:movie_id/:user_id", new MainSystem.watchMoviePageLoginPostHandler());
-        app.get("/actors/:actor_id", new MainSystem.watchActorPageHandler());
+    public void startServer() {
+        app.get("/movies", new MainSystem.moviesListHandler());
+        app.get("/movies/:movie_id", new MainSystem.moviePageHandler());
+        app.post("/movies/:movie_id", new MainSystem.moviePageGetLoginInformationHandler());
+        app.get("/movies/login/:movie_id/:user_id", new MainSystem.moviePageAfterLoginHandler());
+        app.post("/movies/login/:movie_id/:user_id", new MainSystem.moviePageAfterLoginGetRateHandler());
+        app.get("/actors/:actor_id", new MainSystem.actorPageHandler());
         app.get("/watchList/:user_id", new MainSystem.showUserWatchListHandler());
         app.post("/watchList/:user_id", new MainSystem.removeFromUserWatchListHandler());
         app.get("/watchList/:user_id/:movie_id", new MainSystem.addToUserWatchListHandler());
@@ -45,12 +45,6 @@ public class Server {
         app.get("/403", new MainSystem.page403());
         app.get("/404", new MainSystem.page404());
         app.exception(Exception.class, (e, context) -> context.result(e.getMessage()));
-    }
-
-    public static void printOutput(Output output) throws JsonProcessingException {
-        String print = mapper.writeValueAsString(output);
-        print = print.replace("\\", "");
-        System.out.println(print);
     }
 
 }

@@ -26,7 +26,6 @@ public class User {
         movieAlreadyExists(movieId);
         ageLimitError(ageLimit);
         watchList.add(movieId);
-        Server.printOutput(new Output(true, "movie added to watchlist successfully"));
     }
 
     public void movieAlreadyExists(Integer movieId) throws JsonProcessingException, MovieAlreadyExists {
@@ -45,30 +44,6 @@ public class User {
         if (!watchList.contains(movieId))
             throw new MovieNotFound();
         watchList.remove(movieId);
-        Server.printOutput(new Output(true, "movie removed from watchlist successfully"));
-    }
-
-    public List<Movie> getWatchList(ObjectMapper mapper, Map<Integer, Movie> movies) throws Exception {
-        List<Movie> watchListMovies = new ArrayList<>();
-
-        ObjectNode watchListNode = mapper.createObjectNode();
-        List<ObjectNode> moviesObjectNode = new ArrayList<>();
-        for (Integer movieId : watchList) {
-            ObjectNode movie = mapper.createObjectNode();
-            movies.get(movieId).createInformationJson(mapper, movie);
-            moviesObjectNode.add(movie);
-            watchListMovies.add(movies.get(movieId));
-        }
-        ArrayNode arrayNode = mapper.valueToTree(moviesObjectNode);
-        watchListNode.putArray("WatchList").addAll(arrayNode);
-        String data = mapper.writeValueAsString(watchListNode);
-        Server.printOutput(new Output(true, data));
-        return watchListMovies;
-    }
-
-    public void checkForInvalidCommand() throws Exception {
-        if (email==null || password==null || nickname==null || name==null || birthDate==null)
-            throw new UserNotFound();
     }
 
     public String getEmail() {
@@ -89,5 +64,4 @@ public class User {
     public Set<Integer> getWatchList() {
         return watchList;
     }
-
 }

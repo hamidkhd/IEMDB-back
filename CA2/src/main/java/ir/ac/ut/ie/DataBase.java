@@ -96,6 +96,7 @@ public class DataBase {
             checkUserExist(user.getEmail());
             users.put(user.getEmail(), user);
         }
+
     }
 
     static private void setCommentsList() throws Exception {
@@ -111,8 +112,35 @@ public class DataBase {
         }
     }
 
+    public static void removeFromWatchList(String userEmail, Integer movieId) throws Exception {
+        userNotFound(userEmail);
+        movieNotFound(movieId);
+        users.get(userEmail).removeFromWatchList(movieId);
+    }
+
+    public static void addToWatchList(String userEmail, Integer movieId) throws Exception {
+        userNotFound(userEmail);
+        movieNotFound(movieId);
+        int ageLimit = movies.get(movieId).getAgeLimit();
+        users.get(userEmail).addToWatchList(movieId, ageLimit);
+    }
+
+    public static void rateMovie(Rate rate) throws Exception {
+        userNotFound(rate.getUserEmail());
+        movieNotFound(rate.getMovieId());
+        rate.hasError();
+        movies.get(rate.getMovieId()).addRate(rate);
+    }
+
+    public static void voteComment(Vote vote) throws Exception {
+        userNotFound(vote.getUserEmail());
+        commentNotFound(vote.getCommentId());
+        vote.hasError();
+        comments.get(vote.getCommentId()).addVote(vote);
+    }
+
+
     public static Movie getMovieById(Integer id) throws Exception {
-        movies.get(id).printMovieInformation(mapper, existingActors);
         return movies.get(id);
     }
 

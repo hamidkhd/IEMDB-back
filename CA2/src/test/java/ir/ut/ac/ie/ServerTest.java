@@ -2,6 +2,7 @@ package ir.ut.ac.ie;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import io.javalin.Javalin;
 import ir.ac.ut.ie.DataBase;
 import ir.ac.ut.ie.Entities.Movie;
 import ir.ac.ut.ie.Entities.User;
@@ -21,35 +22,36 @@ import java.time.LocalDate;
 
 
 public class ServerTest {
-    private Server server;
+    private static Server server ;
     private DataBase dataBase;
     private HttpClient client;
+
+    @BeforeAll
+    public static void createServer() {
+        server = new Server(8080);
+        server.startServer();
+    }
 
     @BeforeEach
     public void setup() throws Exception {
         dataBase = new DataBase();
-        server = new Server(8080);
-        server.startServer();
         client = HttpClient.newHttpClient();
     }
 
     @AfterEach
     public void teardown() {
         dataBase = null;
-        server = null;
         client = null;
     }
 
     private String getUserId(boolean valid) {
         if (!valid)
             return "gmail.com";
-        User user = DataBase.getUsers().get(0);
-        return user.getEmail();
+        return DataBase.getUsers().entrySet().iterator().next().getKey();
     }
 
     private int getMovieId() {
-        Movie movie = DataBase.getMovies().get(0);
-        return movie.getId();
+        return DataBase.getMovies().entrySet().iterator().next().getKey();
     }
 
     @Test
@@ -59,7 +61,7 @@ public class ServerTest {
                 .GET()
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+        assertEquals("/200", response.headers().map().get("Location").get(0));
     }
 
     @Test

@@ -64,50 +64,6 @@ public class Movie {
         rates.put(rate.getUserEmail(), (int) rate.getScore());
     }
 
-    public void createInformationJson(ObjectMapper mapper, ObjectNode movie) {
-        movie.put("movieId", id);
-        movie.put("name", name);
-        movie.put("director", director);
-        ArrayNode genreArrayNode = mapper.valueToTree(getGenres());
-        movie.putArray("genres").addAll(genreArrayNode);
-        if (ratingCount == 0)
-            movie.put("rating", "null");
-        else
-            movie.put("rating", rating);
-    }
-
-    public void printMovieInformation(ObjectMapper mapper, Map<Integer, Actor> actors) throws JsonProcessingException {
-        ObjectNode movie = mapper.createObjectNode();
-        movie.put("movieId", id);
-        movie.put("name", name);
-        movie.put("summary", summary);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-        movie.put("releaseDate", releaseDate);
-        movie.put("director", director);
-        ArrayNode writersArray = mapper.valueToTree(writers);
-        movie.putArray("writers").addAll(writersArray);
-        ArrayNode genreArrayNode = mapper.valueToTree(genres);
-        movie.putArray("genres").addAll(genreArrayNode);
-        List<ObjectNode> actorsObjNode = new ArrayList<>();
-        for (Integer actorId: cast)
-            actorsObjNode.add(actors.get(actorId).getInformation(mapper));
-        ArrayNode actorsArrayNode = mapper.valueToTree(actorsObjNode);
-        movie.putArray("cast").addAll(actorsArrayNode);
-        if (ratingCount == 0)
-            movie.put("rating", "null");
-        else
-            movie.put("rating", rating);
-        movie.put("duration", duration);
-        movie.put("ageLimit", ageLimit);
-        List<ObjectNode> commentsObjNodes = new ArrayList<>();
-        for (Map.Entry<Integer, Comment> entry: comments.entrySet())
-            commentsObjNodes.add(entry.getValue().getInformation(mapper));
-        ArrayNode commentsArrayNode = mapper.valueToTree(commentsObjNodes);
-        movie.putArray("comments").addAll(commentsArrayNode);
-        String data = mapper.writeValueAsString(movie);
-        Server.printOutput(new Output(true, data));
-    }
-
     public boolean genreMatch(String genre) {
         for (String curGenre: getGenres())
             if (curGenre.equals(genre))

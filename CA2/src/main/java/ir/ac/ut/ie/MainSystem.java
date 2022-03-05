@@ -26,42 +26,20 @@ public class MainSystem {
         mapper.setDateFormat(df);
     }
 
-    static class watchMoviesListHandler implements Handler {
+    static class moviesListHandler implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
-            try {
-                File file = new File("src/main/resources/movies.html");
-                Document document = Jsoup.parse(file, "UTF-8");
-                Elements table = document.getElementsByTag("table");
-                getMoviesList();
-                for (Movie movie : DataBase.getMovies().values())
-                    table.get(0).append(movie.getHtmlTableForWatchMoviesListHandler());
-
-                context.contentType("text/html");
-                context.result(document.toString());
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
-            }
+            File file = new File("src/main/resources/movies.html");
+            Document document = Jsoup.parse(file, "UTF-8");
+            Elements table = document.getElementsByTag("table");
+            for (Movie movie : DataBase.getMovies().values())
+                table.get(0).append(movie.getHtmlTableForWatchMoviesListHandler());
+            context.contentType("text/html");
+            context.result(document.toString());
         }
     }
 
-    public static void getMoviesList() throws Exception {
-        List<ObjectNode> objects = new ArrayList<>();
-        for (Map.Entry<Integer, Movie> entry : DataBase.getMovies().entrySet()) {
-            ObjectNode movie = mapper.createObjectNode();
-            entry.getValue().createInformationJson(mapper, movie);
-            objects.add(movie);
-        }
-        ArrayNode arrayNode = mapper.valueToTree(objects);
-        ObjectNode movieList = mapper.createObjectNode();
-        movieList.putArray("MoviesList").addAll(arrayNode);
-        String data = mapper.writeValueAsString(movieList);
-        Server.printOutput(new Output(true, data));
-    }
-
-
-    static class watchMoviePageHandler implements Handler {
+    static class moviePageHandler implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
             try {
@@ -93,18 +71,14 @@ public class MainSystem {
                 context.contentType("text/html");
                 context.result(document.toString());
             } catch (MovieNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
     }
 
 
 
-    static class watchMoviePageNotLoginHandler implements Handler {
+    static class moviePageGetLoginInformationHandler implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
             try {
@@ -114,16 +88,12 @@ public class MainSystem {
                 DataBase.movieNotFound(Integer.valueOf(movie_id));
                 context.redirect("/movies/login/" + movie_id + "/" + user_id);
             } catch (MovieNotFound | UserNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
     }
 
-    static class watchMoviePageLoginHandler implements Handler {
+    static class moviePageAfterLoginHandler implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
             try {
@@ -155,16 +125,12 @@ public class MainSystem {
                 context.contentType("text/html");
                 context.result(document.toString());
             } catch (MovieNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
     }
 
-    static class watchMoviePageLoginPostHandler implements Handler {
+    static class moviePageAfterLoginGetRateHandler implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
             try {
@@ -187,17 +153,13 @@ public class MainSystem {
                 else if (dislike != null)
                     context.redirect("/voteComment/" + user_id + "/" + dislike + "/" + -1);
             } catch (MovieNotFound | UserNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
     }
 
 
-    static class watchActorPageHandler implements Handler {
+    static class actorPageHandler implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
             try {
@@ -227,11 +189,7 @@ public class MainSystem {
                 context.contentType("text/html");
                 context.result(document.toString());
             } catch (ActorNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
     }
@@ -251,26 +209,19 @@ public class MainSystem {
                 document.getElementById("name").text("Name: " + user.getName());
                 document.getElementById("nickname").text("Nickname: " + user.getNickname());
 
-                for (Movie movie : user.getWatchList(mapper, DataBase.getMovies()))
+                for (Integer movieId : user.getWatchList()) {
+                    Movie movie = DataBase.getMovieById(movieId);
                     table.get(0).append(movie.showUserWatchListHandler(user_id));
+                }
 
-                getWatchList(user_id);
+               DataBase.userNotFound(user_id);
 
                 context.contentType("text/html");
                 context.result(document.toString());
             } catch (UserNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
-    }
-
-    public static void getWatchList(String userEmail) throws Exception {
-        DataBase.userNotFound(userEmail);
-        DataBase.getUsers().get(userEmail).getWatchList(mapper, DataBase.getMovies());
     }
 
     static class removeFromUserWatchListHandler implements Handler {
@@ -280,24 +231,13 @@ public class MainSystem {
                 String user_id = context.pathParam("user_id");
                 String movie_id = context.formParam("movie_id");
                 assert movie_id != null;
-                removeFromWatchList(user_id, Integer.valueOf(movie_id));
+                DataBase.removeFromWatchList(user_id, Integer.valueOf(movie_id));
                 context.redirect("/watchList/" + user_id);
             } catch (MovieNotFound | UserNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
     }
-
-    public static void removeFromWatchList(String userEmail, Integer movieId) throws Exception {
-        DataBase.userNotFound(userEmail);
-        DataBase.movieNotFound(movieId);
-        DataBase.getUsers().get(userEmail).removeFromWatchList(movieId);
-    }
-
 
     static class addToUserWatchListHandler implements Handler {
         @Override
@@ -306,26 +246,14 @@ public class MainSystem {
                 String user_id = context.pathParam("user_id");
                 String movie_id = context.pathParam("movie_id");
 
-                addToWatchList(user_id, Integer.valueOf(movie_id));
+                DataBase.addToWatchList(user_id, Integer.valueOf(movie_id));
                 context.redirect("/200");
             } catch (MovieNotFound | UserNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
             } catch (AgeLimitError exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/403");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
-    }
-
-    public static void addToWatchList(String userEmail, Integer movieId) throws Exception {
-        DataBase.userNotFound(userEmail);
-        DataBase.movieNotFound(movieId);
-        int ageLimit = DataBase.getMovies().get(movieId).getAgeLimit();
-        DataBase.getUsers().get(userEmail).addToWatchList(movieId, ageLimit);
     }
 
 
@@ -336,32 +264,14 @@ public class MainSystem {
                 String user_id = context.pathParam("user_id");
                 String movie_id = context.pathParam("movie_id");
                 String rate = context.pathParam("rate");
-
-                rateMovie(new Rate(user_id, Integer.valueOf(movie_id), Float.parseFloat(rate)));
-
-                File file = new File("src/main/resources/200.html");
-                Document document = Jsoup.parse(file, "UTF-8");
-
-                context.contentType("text/html");
-                context.result(document.toString());
+                DataBase.rateMovie(new Rate(user_id, Integer.valueOf(movie_id), Float.parseFloat(rate)));
+                context.redirect("/200");
             } catch (MovieNotFound | UserNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
             } catch (InvalidRateScore exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/403");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
-    }
-    public static void rateMovie(Rate rate) throws Exception {
-        DataBase.userNotFound(rate.getUserEmail());
-        DataBase.movieNotFound(rate.getMovieId());
-        rate.hasError();
-        DataBase.getMovies().get(rate.getMovieId()).addRate(rate);
-        Server.printOutput(new Output(true, "movie rated successfully"));
     }
 
     static class voteCommentHandler implements Handler {
@@ -371,60 +281,35 @@ public class MainSystem {
                 String user_id = context.pathParam("user_id");
                 String comment_id = context.pathParam("comment_id");
                 String vote = context.pathParam("vote");
-
-                voteComment(new Vote(user_id, Integer.valueOf(comment_id), Integer.valueOf(vote)));
-
-                File file = new File("src/main/resources/200.html");
-                Document document = Jsoup.parse(file, "UTF-8");
-
-                context.contentType("text/html");
-                context.result(document.toString());
+                DataBase.voteComment(new Vote(user_id, Integer.valueOf(comment_id), Integer.valueOf(vote)));
+                context.redirect("/200");
             } catch (CommentNotFound | UserNotFound exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/404");
             } catch (InvalidVoteValue exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
                 context.redirect("/403");
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
             }
         }
-    }
-    public static void voteComment(Vote vote) throws Exception {
-        DataBase.userNotFound(vote.getUserEmail());
-        DataBase.commentNotFound(vote.getCommentId());
-        vote.hasError();
-        DataBase.getComments().get(vote.getCommentId()).addVote(vote);
-        Server.printOutput(new Output(true, "comment voted successfully"));
     }
 
 
     static class searchMovieByReleaseDateHandler implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
-            try {
-                File file = new File("src/main/resources/movies.html");
-                Document document = Jsoup.parse(file, "UTF-8");
-                Elements table = document.getElementsByTag("table");
+            File file = new File("src/main/resources/movies.html");
+            Document document = Jsoup.parse(file, "UTF-8");
+            Elements table = document.getElementsByTag("table");
 
-                String start_year = context.pathParam("start_year");
-                String end_year = context.pathParam("end_year");
-
-                for (Movie movie : getMoviesByDate(start_year, end_year))
-                    table.get(0).append(movie.getHtmlTableForWatchMoviesListHandler());
-
-                context.contentType("text/html");
-                context.result(document.toString());
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
-            }
+            String start_year = context.pathParam("start_year");
+            String end_year = context.pathParam("end_year");
+            for (Movie movie : getMoviesByDate(start_year, end_year))
+                table.get(0).append(movie.getHtmlTableForWatchMoviesListHandler());
+            context.contentType("text/html");
+            context.result(document.toString());
         }
     }
+
     public static List<Movie> getMoviesByDate(String start_date, String end_date) throws Exception {
         List<Movie> dateMovies = new ArrayList<>();
-
         for (Map.Entry<Integer, Movie> entry : DataBase.getMovies().entrySet()) {
             if (df.parse(start_date).before(df.parse(entry.getValue().getReleaseDate())) &&
                     df.parse(end_date).after(df.parse(entry.getValue().getReleaseDate()))) {
@@ -437,90 +322,57 @@ public class MainSystem {
     static class searchMovieByGenreHandler implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
-            System.out.println("ok");
-            try {
-                File file = new File("src/main/resources/movies.html");
-                Document document = Jsoup.parse(file, "UTF-8");
-                Elements table = document.getElementsByTag("table");
 
-                String genre = context.pathParam("genre");
+            File file = new File("src/main/resources/movies.html");
+            Document document = Jsoup.parse(file, "UTF-8");
+            Elements table = document.getElementsByTag("table");
 
-                for (Movie movie : getMoviesByGenre(genre))
-                    table.get(0).append(movie.getHtmlTableForWatchMoviesListHandler());
+            String genre = context.pathParam("genre");
 
-                context.contentType("text/html");
-                context.result(document.toString());
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
-            }
+            for (Movie movie : getMoviesByGenre(genre))
+                table.get(0).append(movie.getHtmlTableForWatchMoviesListHandler());
+
+            context.contentType("text/html");
+            context.result(document.toString());
         }
     }
-    public static List<Movie> getMoviesByGenre(String genre) throws Exception {
-        List<ObjectNode> moviesObjectNode = new ArrayList<>();
-        List<Movie> genreMovies = new ArrayList<>();
 
-        for (Map.Entry<Integer, Movie> entry : DataBase.getMovies().entrySet()) {
-            if (entry.getValue().genreMatch(genre)) {
-                ObjectNode movie = mapper.createObjectNode();
-                entry.getValue().createInformationJson(mapper, movie);
-                moviesObjectNode.add(movie);
-                genreMovies.add(entry.getValue());
-            }
+    public static List<Movie> getMoviesByGenre(String genre) throws Exception {
+        List<Movie> genreMovies = new ArrayList<>();
+        for (Movie movie : DataBase.getMovies().values()) {
+            if (movie.genreMatch(genre))
+                genreMovies.add(movie);
         }
-        ObjectNode moviesListByGenre = mapper.createObjectNode();
-        ArrayNode moviesArrayNode = mapper.valueToTree(moviesObjectNode);
-        moviesListByGenre.putArray("MoviesListByGenre").addAll(moviesArrayNode);
-        String outputData = mapper.writeValueAsString(moviesListByGenre);
-        Server.printOutput(new Output(true, outputData));
         return genreMovies;
     }
-
 
     static class page200 implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
-            try {
-                File file = new File("src/main/resources/200.html");
-                Document document = Jsoup.parse(file, "UTF-8");
-                context.contentType("text/html");
-                context.result(document.toString());
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
-            }
+            File file = new File("src/main/resources/200.html");
+            Document document = Jsoup.parse(file, "UTF-8");
+            context.contentType("text/html");
+            context.result(document.toString());
         }
     }
 
     static class page403 implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
-            try {
-                File file = new File("src/main/resources/403.html");
-                Document document = Jsoup.parse(file, "UTF-8");
-
-                context.contentType("text/html");
-                context.result(document.toString());
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
-            }
+            File file = new File("src/main/resources/403.html");
+            Document document = Jsoup.parse(file, "UTF-8");
+            context.contentType("text/html");
+            context.result(document.toString());
         }
     }
 
     static class page404 implements Handler {
         @Override
         public void handle(@NotNull Context context) throws Exception {
-            try {
-                File file = new File("src/main/resources/404.html");
-                Document document = Jsoup.parse(file, "UTF-8");
-
-                context.contentType("text/html");
-                context.result(document.toString());
-            } catch (Exception exception) {
-                Server.printOutput(new Output(false, exception.getMessage()));
-                throw exception;
-            }
+            File file = new File("src/main/resources/404.html");
+            Document document = Jsoup.parse(file, "UTF-8");
+            context.contentType("text/html");
+            context.result(document.toString());
         }
     }
 }
