@@ -43,7 +43,7 @@
     <p id="email">email: <%= UserManager.getInstance().getCurrentUser()%></p>
     <br>
     <h3>Search:</h3>
-    <form action= <%= request.getContextPath() + "/movies.jsp" %> method="get">
+    <form action= <%=request.getContextPath() + "/movies"%> method="POST">
         <label>Search:</label>
         <input type="text" name="search" value="">
         <button type="submit" name="action" value="search">Search</button>
@@ -51,7 +51,7 @@
     </form>
     <br>
     <h3>Sort:</h3>
-    <form <%= request.getContextPath() + "/movies.jsp" %> method="get">
+    <form action= <%=request.getContextPath() + "/movies"%> method="POST">
         <label>Sort By:</label>
         <button type="submit" name="action" value="sort_by_imdb">imdb Rate</button>
         <button type="submit" name="action" value="sort_by_date">releaseDate</button>
@@ -74,23 +74,9 @@
             <th>Links</th>
         </tr>
 
-        <% if (request.getParameter("action") == null || request.getParameter("action").equals("clear")
-                || request.getParameter("action").equals("sort_by_imdb")) {
-            for (Movie movie : DataBase.getInstance().getMovies().values()) { %>
+        <% for (Movie movie : DataBase.getInstance().moviesToShow().values()) { %>
                 <%= getMovieInformation(movie, request.getContextPath()) %>
-        <% }}
-
-         else if (request.getParameter("action").equals("search")) {
-            String searchedMovie = request.getParameter("search").toUpperCase();
-            for (Movie movie: DataBase.getInstance().getMovies().values()) {
-                if (movie.getName().toUpperCase().contains(searchedMovie)) { %>
-                    <%= getMovieInformation(movie, request.getContextPath()) %>
-        <% }}}
-
-         else if (request.getParameter("action").equals("sort_by_date")) {
-             for (Movie movie: DataBase.getInstance().getMoviesSortedByDate().values()) { %>
-                <%= getMovieInformation(movie, request.getContextPath()) %>
-        <% }} %>
+        <% } %>
 
     </table>
     </body>

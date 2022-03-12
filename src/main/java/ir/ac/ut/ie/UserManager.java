@@ -8,6 +8,8 @@ import java.util.ArrayList;
 public class UserManager {
     private String currentUser;
     private static UserManager instance;
+    private boolean search;
+    private boolean defaultSort;
 
     private UserManager() {
         currentUser = null;
@@ -25,5 +27,20 @@ public class UserManager {
 
     public String getCurrentUser() {
         return currentUser;
+    }
+
+    public boolean isSearch() {
+        return search;
+    }
+    public void setSearch(boolean search) {
+        this.search = search;
+    }
+
+    public boolean isDefaultSort() {
+        return defaultSort;
+    }
+
+    public void setDefaultSort(boolean defaultSort) {
+        this.defaultSort = defaultSort;
     }
 }

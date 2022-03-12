@@ -17,9 +17,11 @@ public class DataBase {
     private static Map<Integer, Actor> existingActors;
     private static HashMap<Integer, Movie> movies;
     private static HashMap<Integer, Movie> moviesSortedByDate;
+    private static HashMap<Integer, Movie> searchedMovies;
     private static Map<String, User> users;
     private static Map<Integer, Comment> comments;
     private static Integer commentId;
+
 
     private DataBase() throws IOException {
         mapper = new ObjectMapper();
@@ -27,6 +29,7 @@ public class DataBase {
         existingActors = new HashMap<>();
         movies = new LinkedHashMap<>();
         moviesSortedByDate = new LinkedHashMap<>();
+        searchedMovies = new LinkedHashMap<>();
         users = new HashMap<>();
         comments = new HashMap<>();
         commentId = 1;
@@ -83,7 +86,7 @@ public class DataBase {
             }
         }
         sortMoviesByRate(moviesNotSorted);
-        sortMoviesByDate();
+        moviesSortedByDate = sortMoviesByDate(movies);
     }
 
     private static void sortMoviesByRate(Map<Integer, Movie> moviesNotSorted) {
@@ -99,8 +102,9 @@ public class DataBase {
         }
     }
 
-    private static void sortMoviesByDate() {
-        List list = new LinkedList(movies.entrySet());
+    private static HashMap<Integer, Movie> sortMoviesByDate(HashMap<Integer, Movie> moviesToSort) {
+        List list = new LinkedList(moviesToSort.entrySet());
+        HashMap<Integer, Movie> sorted = new LinkedHashMap<>();
         Collections.sort(list, new Comparator() {
             public int compare(Object o1, Object o2) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -114,8 +118,9 @@ public class DataBase {
         });
         for (Iterator it = list.iterator(); it.hasNext();) {
             Map.Entry entry = (Map.Entry) it.next();
-            moviesSortedByDate.put((Integer) entry.getKey(), (Movie) entry.getValue());
+            sorted.put((Integer) entry.getKey(), (Movie) entry.getValue());
         }
+        return sorted;
     }
 
      private void setActorsList() throws Exception {
@@ -227,6 +232,28 @@ public class DataBase {
     public void commentNotFound(Integer commentId) throws Exception {
         if (!comments.containsKey(commentId))
             throw new CommentNotFound();
+    }
+
+    public void setSearchedMovies(String searchedMovieName) {
+        searchedMovies.clear();
+        for (Movie movie : movies.values())
+            if (movie.getName().toUpperCase().contains(searchedMovieName.toUpperCase()))
+                searchedMovies.put(movie.getId(), movie);
+    }
+
+    public Map<Integer, Movie> moviesToShow() {
+        if (! UserManager.getInstance().isSearch()) {
+            if (UserManager.getInstance().isDefaultSort())
+                return movies;
+            else
+                return moviesSortedByDate;
+        }
+        else {
+            if (UserManager.getInstance().isDefaultSort())
+                return searchedMovies;
+            else
+                return sortMoviesByDate(searchedMovies);
+        }
     }
 
     public Map<String, User> getUsers() {
