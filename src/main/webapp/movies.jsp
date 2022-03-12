@@ -3,6 +3,7 @@
 <%@ page import="ir.ac.ut.ie.UserManager" %>
 <%@ page import="java.util.Locale" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 <%
     if (UserManager.getInstance().getCurrentUser() == null) {
         response.setContentType("text/html");
@@ -37,12 +38,15 @@
             li, td, th {
                 padding: 5px;
             }
+            h2 {
+                color: rgb(207, 3, 3);
+            }
         </style>
     </head>
 
     <body>
     <h2>Movies Page</h2>
-    <a href=<%=request.getContextPath() + "/index.jsp"%>>Home</a>
+    <a href=<%=request.getContextPath() + ""%>>Home</a>
     <h3>User</h3>
     <p id="email">email: <%= UserManager.getInstance().getCurrentUser()%></p>
     <br>

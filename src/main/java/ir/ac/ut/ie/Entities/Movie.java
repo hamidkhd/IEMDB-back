@@ -21,6 +21,7 @@ public class Movie {
     private int ratingCount;
     private Map<Integer, Comment> comments;
     private Map<String, Integer> rates;
+    int score;
 
     public void initialValues() {
         rating = 0;
@@ -58,15 +59,15 @@ public class Movie {
     }
 
     public boolean genreMatch(String genre) {
-        for (String curGenre: getGenres())
+        for (String curGenre : getGenres())
             if (curGenre.equals(genre))
                 return true;
         return false;
     }
 
     public void checkForInvalidCommand() throws InvalidCommand {
-        if (id==null || name==null || summary==null || releaseDate==null || director==null || writers==null
-                || genres==null || cast==null || imdbRate==null || duration==null || ageLimit==null)
+        if (id == null || name == null || summary == null || releaseDate == null || director == null || writers == null
+                || genres == null || cast == null || imdbRate == null || duration == null || ageLimit == null)
             throw new InvalidCommand();
     }
 
@@ -74,51 +75,76 @@ public class Movie {
     public Integer getId() {
         return id;
     }
+
     public String getName() {
         return name;
     }
+
     public String getSummary() {
         return summary;
     }
+
     public String getReleaseDate() {
         return releaseDate;
     }
+
     public String getDirector() {
         return director;
     }
+
     public List<String> getWriters() {
         return writers;
     }
+
     public List<String> getGenres() {
         return genres;
     }
+
     public List<Integer> getCast() {
         return cast;
     }
+
     public Float getImdbRate() {
         return imdbRate;
     }
+
     public Integer getDuration() {
         return duration;
     }
+
     public Integer getAgeLimit() {
         return ageLimit;
     }
+
     public float getRating() {
         return rating;
     }
+
     public int getRatingCount() {
         return ratingCount;
     }
+
     public Map<Integer, Comment> getComments() {
         return comments;
     }
-    public Map<String, Integer> getRates() { return rates; }
+
+    public Map<String, Integer> getRates() {
+        return rates;
+    }
+
     public void setCastName(List<String> castName) {
         this.castName = castName;
     }
 
     public List<String> getCastName() {
         return castName;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 }

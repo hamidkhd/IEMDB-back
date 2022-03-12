@@ -1,5 +1,10 @@
 package ir.ac.ut.ie;
 
+import ir.ac.ut.ie.Entities.Movie;
+
+
+import java.util.ArrayList;
+
 public class UserManager {
     private String currentUser;
     private static UserManager instance;

@@ -18,6 +18,9 @@
             li, td, th {
                 padding: 5px;
             }
+            h2 {
+                color: rgb(207, 3, 3);
+            }
         </style>
     </head>
 
@@ -28,7 +31,7 @@
 
     <body>
     <h2>Movie Page</h2>
-    <a href= <%= request.getContextPath() + "/index.jsp" %>>Home</a>
+    <a href= <%= request.getContextPath() + "" %>>Home</a>
         <br>
         <h3>User:</h3>
         <p id="email">email: <%= UserManager.getInstance().getCurrentUser()%></p>
