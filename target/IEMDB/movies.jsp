@@ -4,14 +4,6 @@
 <%@ page import="java.util.Locale" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<%
-    if (UserManager.getInstance().getCurrentUser() == null) {
-        response.setContentType("text/html");
-        response.setStatus(response.SC_MOVED_TEMPORARILY);
-        response.setHeader("Location", request.getContextPath() + "/login.jsp");
-    }
-%>
-
 <%!
     public String getMovieInformation(Movie movie, String path) {
         return

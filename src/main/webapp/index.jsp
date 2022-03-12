@@ -19,7 +19,7 @@
         <li id="email">email: <%= UserManager.getInstance().getCurrentUser()%></li>
         <br>
         <li>
-            <a href= <%=request.getContextPath() + "/movies.jsp" %>>Movies</a>
+            <a href= <%=request.getContextPath() + "/movies" %>>Movies</a>
         </li>
         <li>
             <a href= <%=request.getContextPath() + "/watchlist" %>>Watch List</a>
