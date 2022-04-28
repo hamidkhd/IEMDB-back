@@ -16,9 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 public class WatchlistController extends HttpServlet {
-    @RequestMapping(value = "/getWatchlist/{userId}", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public Movie[] getUser(@PathVariable(value = "userId") String userId) throws Exception {
+    private Movie[] getWatchlist(String userId) throws Exception {
         Set<Integer> movieIds = DataBase.getInstance().getUsers().get(userId).getWatchList();
         Movie[] watchList = new Movie[movieIds.size()];
         int i=0;
@@ -26,8 +24,14 @@ public class WatchlistController extends HttpServlet {
             watchList[i] = DataBase.getInstance().getMovieById(id);
             i++;
         }
-        TimeUnit.SECONDS.sleep(3);
         return watchList;
+    }
+
+    @RequestMapping(value = "/getWatchlist/{userId}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Movie[] getUser(@PathVariable(value = "userId") String userId) throws Exception {
+        TimeUnit.SECONDS.sleep(3);
+        return getWatchlist(userId);
     }
 
     @RequestMapping(value = "/addToWatchlist/{userId}", method = RequestMethod.POST)
@@ -55,15 +59,8 @@ public class WatchlistController extends HttpServlet {
             @PathVariable(value = "userId") String userId,
             @RequestParam(value = "movieId") Integer movieId) throws Exception {
         DataBase.getInstance().getUsers().get(userId).removeFromWatchList(movieId);
-        Set<Integer> movieIds = DataBase.getInstance().getUsers().get(userId).getWatchList();
-        Movie[] watchList = new Movie[movieIds.size()];
-        int i=0;
-        for (Integer id:movieIds) {
-            watchList[i] = DataBase.getInstance().getMovieById(id);
-            i++;
-        }
         TimeUnit.SECONDS.sleep(3);
-        return watchList;
+        return getWatchlist(userId);
     }
 
     @RequestMapping(value = "/getRecommendedMovies/{userId}", method = RequestMethod.GET,
@@ -87,7 +84,6 @@ public class WatchlistController extends HttpServlet {
         }
 
         while (movieId_byScore.size() != 0) {
-            System.out.println(movieId_byScore.size());
             int max_score_index = scores.indexOf(Collections.max(scores));
             recommended_movies.add(movieId_byScore.get(max_score_index));
             scores.remove(max_score_index);

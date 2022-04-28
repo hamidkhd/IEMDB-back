@@ -18,8 +18,6 @@ public class UserController {
     public User getUser(
             @RequestParam(value = "username") String username,
             @RequestParam(value = "password") String password) throws IOException, InterruptedException {
-        System.out.println(username);
-        System.out.println(password);
         TimeUnit.SECONDS.sleep(3);
         return DataBase.getInstance().getAuthenticatedUser(username, password);
     }

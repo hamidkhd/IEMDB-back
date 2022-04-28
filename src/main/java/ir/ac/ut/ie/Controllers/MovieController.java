@@ -1,12 +1,9 @@
 package ir.ac.ut.ie.Controllers;
-
 import ir.ac.ut.ie.DataBase;
 import ir.ac.ut.ie.Entities.*;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.*;
-
 import java.util.concurrent.TimeUnit;
 
 
@@ -14,44 +11,21 @@ import java.util.concurrent.TimeUnit;
 public class MovieController {
     @RequestMapping(value = "/getMovie/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Movie getMovie(@PathVariable(value = "id") String id) throws Exception {
+    public Movie getMovie(@PathVariable(value = "id") Integer id) throws Exception {
         TimeUnit.SECONDS.sleep(3);
-        return DataBase.getInstance().getMovieById(Integer.parseInt(id));
+        return DataBase.getInstance().getMovieById(id);
     }
 
     @RequestMapping(value = "/getMovieActors/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Actor[] getMovieActors(@PathVariable(value = "id") String id) throws Exception {
+    public Actor[] getMovieActors(@PathVariable(value = "id") Integer id) throws Exception {
         List<Actor> actors = new ArrayList<>();
-        Movie movie = DataBase.getInstance().getMovieById(Integer.parseInt(id));
+        Movie movie = DataBase.getInstance().getMovieById(id);
         for (Integer actorId : movie.getCast()) {
             actors.add(DataBase.getInstance().getActorById(actorId));
         }
         TimeUnit.SECONDS.sleep(3);
         return actors.toArray(new Actor[0]);
-    }
-
-    @RequestMapping(value = "/postMovieCommentRate/{movieId}", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public Comment postMovieCommentRate(
-            @PathVariable(value = "movieId") String movieId,
-            @RequestParam(value = "userId") String userId,
-            @RequestParam(value = "commentId") String commentId,
-            @RequestParam(value = "like") String like) throws Exception {
-        Vote vote = new Vote(userId, Integer.parseInt(commentId), Integer.parseInt(like));
-        DataBase.getInstance().getComments().get(Integer.parseInt(commentId)).addVote(vote);
-        TimeUnit.SECONDS.sleep(3);
-        return DataBase.getInstance().getComments().get(Integer.parseInt(commentId));
-    }
-
-    @RequestMapping(value = "/addComment", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public Comment addComment(
-            @RequestParam(value = "userId") String userId,
-            @RequestParam(value = "movieId") String movieId,
-            @RequestParam(value = "text") String text) throws Exception {
-        TimeUnit.SECONDS.sleep(3);
-        return DataBase.getInstance().addComment(userId, Integer.parseInt(movieId), text);
     }
 
     @RequestMapping(value = "/postRate/{movieId}", method = RequestMethod.POST,

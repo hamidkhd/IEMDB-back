@@ -174,34 +174,6 @@ public class DataBase {
         }
     }
 
-    public void removeFromWatchList(String userEmail, Integer movieId) throws Exception {
-        userNotFound(userEmail);
-        movieNotFound(movieId);
-        users.get(userEmail).removeFromWatchList(movieId);
-    }
-
-    public void addToWatchList(String userEmail, Integer movieId) throws Exception {
-        userNotFound(userEmail);
-        movieNotFound(movieId);
-        int ageLimit = movies.get(movieId).getAgeLimit();
-        users.get(userEmail).addToWatchList(movieId, ageLimit);
-    }
-
-    public void rateMovie(Rate rate) throws Exception {
-        userNotFound(rate.getUserEmail());
-        movieNotFound(rate.getMovieId());
-        rate.hasError();
-        movies.get(rate.getMovieId()).addRate(rate);
-    }
-
-    public void voteComment(Vote vote) throws Exception {
-        userNotFound(vote.getUserEmail());
-        commentNotFound(vote.getCommentId());
-        vote.hasError();
-        comments.get(vote.getCommentId()).addVote(vote);
-    }
-
-
     public Movie getMovieById(Integer id) throws Exception {
         return movies.get(id);
     }
@@ -219,26 +191,6 @@ public class DataBase {
     public static void checkUserExist(String userEmail) throws Exception {
         if (users.containsKey(userEmail))
             throw new UserAlreadyExists();
-    }
-
-    public void userNotFound(String userEmail) throws Exception {
-        if (!users.containsKey(userEmail))
-            throw new UserNotFound();
-    }
-
-    public void actorNotFound(Integer userEmail) throws Exception {
-        if (!existingActors.containsKey(userEmail))
-            throw new ActorNotFound();
-    }
-
-    public void movieNotFound(Integer movieId) throws Exception {
-        if (!movies.containsKey(movieId))
-            throw new MovieNotFound();
-    }
-
-    public void commentNotFound(Integer commentId) throws Exception {
-        if (!comments.containsKey(commentId))
-            throw new CommentNotFound();
     }
 
     private void searchByName(String searchValue) {

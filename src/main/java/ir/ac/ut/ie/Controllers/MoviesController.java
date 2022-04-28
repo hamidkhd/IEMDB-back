@@ -27,7 +27,6 @@ public class MoviesController {
             searchValue ="";
         if(searchBy == null)
             searchBy ="";
-        System.out.println(searchValue);
         Map<Integer, Movie> moviesMap = DataBase.getInstance().moviesToShow(Boolean.parseBoolean(defaultSort), searchBy, searchValue);
         Movie[] movies = moviesMap.values().toArray(new Movie[0]);
         TimeUnit.SECONDS.sleep(3);
