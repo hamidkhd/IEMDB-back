@@ -5,18 +5,11 @@ import ir.ac.ut.ie.Entities.Movie;
 import ir.ac.ut.ie.Entities.User;
 import ir.ac.ut.ie.Exceptions.AgeLimitError;
 import ir.ac.ut.ie.Exceptions.MovieAlreadyExists;
-import ir.ac.ut.ie.UserManager;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
