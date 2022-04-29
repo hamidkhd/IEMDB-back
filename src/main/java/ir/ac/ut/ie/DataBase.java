@@ -61,7 +61,6 @@ public class DataBase {
             setCommentsList();
         }
         catch (Exception exception) {
-            System.out.println("eroooor");
             System.out.println(exception.getMessage());
         }
     }
@@ -162,7 +161,6 @@ public class DataBase {
     }
 
     private void setCommentsList() throws Exception {
-        System.out.println("set");
         String data = getConnection("/api/comments");
         Comment[] commentsList = mapper.readValue(data, Comment[].class);
 
@@ -251,12 +249,10 @@ public class DataBase {
     }
 
     public Comment addComment(String userEmail, Integer movieId, String text) {
-        System.out.println(comments.size());
         String username = users.get(userEmail).getName();
         Comment comment = new Comment(commentId, userEmail, movieId, text, username);
         comments.put(comment.getCommentId(), comment);
         movies.get(movieId).getComments().put(comment.getCommentId(), comment);
-        System.out.println(comments.size());
         commentId += 1;
         return comment;
     }
