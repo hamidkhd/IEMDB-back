@@ -78,7 +78,11 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
     public void setPassword(String password) {
         this.password = password;
     }
+    public void setBirthDate(Date birthDate) { this.birthDate = birthDate; }
 }

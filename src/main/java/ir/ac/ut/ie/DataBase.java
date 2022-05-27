@@ -64,11 +64,11 @@ public class DataBase {
 
     private void setInformation() {
         try {
-            setActorsList();
-            setMoviesList();
-            setUsersList();
-            setCommentsList();
-            setActorMoviesPlayed();
+//            setActorsList();
+//            setMoviesList();
+//            setUsersList();
+//            setCommentsList();
+//            setActorMoviesPlayed();
         }
         catch (Exception exception) {
             System.out.println(exception.getMessage());
@@ -164,6 +164,31 @@ public class DataBase {
         Date birthDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(birth_date);
         String hashPassword = HashCreator.getInstance().getMD5Hash(password);
         User user = new User(username, hashPassword, nickname, name, birthDate);
+        userRepository.save(user);
+        return user;
+    }
+
+    public User addUserWithGithub(String username, String password, String name, String nickname, String birth_date) throws Exception {
+        User findUser = userRepository.findUserByEmail(username);
+
+        Date birthDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(birth_date);
+        Calendar c = Calendar.getInstance();
+        c.setTime(birthDate);
+        c.add(Calendar.YEAR, -18);
+        Date newBirthDate = c.getTime();
+
+
+        if (findUser != null)
+        {
+            findUser.setPassword(password);
+            findUser.setName(name);
+            findUser.setNickname(nickname);
+            findUser.setBirthDate(newBirthDate);
+            userRepository.save(findUser);
+            return findUser;
+        }
+
+        User user = new User(username, password, nickname, name, newBirthDate);
         userRepository.save(user);
         return user;
     }
