@@ -17,12 +17,14 @@ public class ActorController {
     @RequestMapping(value = "/getActorMovies/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Movie[] getActorMovies(@PathVariable(value = "id") Integer id) throws Exception {
+        TimeUnit.SECONDS.sleep(3);
         return DataBase.getInstance().getActorMoviesPlayed(id).toArray(new Movie[0]);
     }
 
     @RequestMapping(value = "/getActor/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Actor getActor(@PathVariable(value = "id") Integer id) throws Exception {
+        TimeUnit.SECONDS.sleep(3);
         return DataBase.getInstance().getActorById(id);
     }
 }

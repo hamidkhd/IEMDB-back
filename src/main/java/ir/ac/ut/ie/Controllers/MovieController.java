@@ -1,9 +1,6 @@
 package ir.ac.ut.ie.Controllers;
 import ir.ac.ut.ie.DataBase;
 import ir.ac.ut.ie.Entities.*;
-import ir.ac.ut.ie.Entities.Actor;
-import ir.ac.ut.ie.Entities.Movie;
-import ir.ac.ut.ie.Entities.Rate;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
@@ -15,6 +12,7 @@ public class MovieController {
     @RequestMapping(value = "/getMovie/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Movie getMovie(@PathVariable(value = "id") Integer id) throws Exception {
+        TimeUnit.SECONDS.sleep(3);
         return DataBase.getInstance().getMovieById(id);
     }
 
@@ -23,9 +21,10 @@ public class MovieController {
     public Actor[] getMovieActors(@PathVariable(value = "id") Integer id) throws Exception {
         List<Actor> actors = new ArrayList<>();
         Movie movie = DataBase.getInstance().getMovieById(id);
-//        for (Integer actorId : movie.getCast()) {
-//            actors.add(DataBase.getInstance().getActorById(actorId));
-//        }
+        for (Integer actorId : movie.getCast()) {
+            actors.add(DataBase.getInstance().getActorById(actorId));
+        }
+        TimeUnit.SECONDS.sleep(3);
         return actors.toArray(new Actor[0]);
     }
 
@@ -37,6 +36,7 @@ public class MovieController {
             @RequestParam(value = "rate") int score) throws Exception {
         Rate newRate = new Rate(userId, movieId, score);
         DataBase.getInstance().getMovieById(movieId).addRate(newRate);
+        TimeUnit.SECONDS.sleep(3);
         return DataBase.getInstance().getMovieById(movieId);
     }
 }

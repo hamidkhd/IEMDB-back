@@ -3,25 +3,15 @@ package ir.ac.ut.ie;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.ac.ut.ie.Entities.*;
 import ir.ac.ut.ie.Exceptions.*;
-import ir.ac.ut.ie.Entities.Actor;
-import ir.ac.ut.ie.Entities.Comment;
-import ir.ac.ut.ie.Entities.Movie;
-import ir.ac.ut.ie.Entities.User;
-import ir.ac.ut.ie.Exceptions.ActorNotFound;
-import ir.ac.ut.ie.Exceptions.UserAlreadyExists;
-import ir.ac.ut.ie.Repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
+import ir.ac.ut.ie.Repository.IEMDBRepository;
 
-import javax.annotation.PostConstruct;
 import java.io.*;
 import java.net.*;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Component
 public class DataBase {
     private static DataBase instance;
     static private ObjectMapper mapper;
@@ -34,18 +24,10 @@ public class DataBase {
     private static Map<Integer, Comment> comments;
     private static Integer commentId;
 
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    ActorRepository actorRepository;
-    @Autowired
-    MovieRepository movieRepository;
-    @Autowired
-    CommentRepository commentRepository;
 
+    private DataBase() throws IOException, SQLException {
+        System.out.println("Hi");
 
-    @PostConstruct
-    public void initialize() throws IOException {
         mapper = new ObjectMapper();
         host = "http://138.197.181.131:5000";
         existingActors = new HashMap<>();
@@ -56,10 +38,11 @@ public class DataBase {
         comments = new HashMap<>();
         commentId = 1;
         setInformation();
+
+//        IEMDBRepository.getInstance();
     }
 
-
-    public static DataBase getInstance() throws IOException {
+    public static DataBase getInstance() throws IOException, SQLException {
         if (instance == null)
             instance = new DataBase();
         return instance;
@@ -88,17 +71,18 @@ public class DataBase {
         }
     }
 
-    private void setMoviesList() throws Exception {
+    static void setMoviesList() throws Exception {
         String data = getConnection("/api/v2/movies");
         Movie[] moviesList = mapper.readValue(data, Movie[].class);
         Map<Integer, Movie> moviesNotSorted = new HashMap<>();
         for (Movie movie: moviesList) {
-//            checkCastExist(movie.getCast());
+            movie.checkForInvalidCommand();
+            checkCastExist(movie.getCast());
 
             List<String> actors = new ArrayList<>();
-//            for (Integer i : movie.getCast())
-//                actors.add(existingActors.get(i).getName());
-//            movie.setCastName(actors);
+            for (Integer i : movie.getCast())
+                actors.add(existingActors.get(i).getName());
+            movie.setCastName(actors);
 
             if (moviesNotSorted.containsKey(movie.getId()))
                 moviesNotSorted.get(movie.getId()).update(movie);
@@ -106,11 +90,11 @@ public class DataBase {
                 movie.initialValues();
                 moviesNotSorted.put(movie.getId(), movie);
             }
-            movieRepository.save(movie);
         }
         sortMoviesByRate(moviesNotSorted);
         moviesSortedByDate = sortMoviesByDate(movies);
 
+//        IEMDBRepository.getInstance().insertMovies(moviesList);
     }
 
     private static void sortMoviesByRate(Map<Integer, Movie> moviesNotSorted) {
@@ -156,7 +140,6 @@ public class DataBase {
         String data = getConnection("/api/v2/actors");
         Actor[] actorsList = mapper.readValue(data, Actor[].class);
         for (Actor actor: actorsList) {
-            actorRepository.save(actor);
             actor.checkForInvalidCommand();
             if (existingActors.containsKey(actor.getId()))
                 existingActors.get(actor.getId()).update(actor);
@@ -168,9 +151,9 @@ public class DataBase {
 
     public ArrayList<Movie> getActorMoviesPlayed(Integer actorId) {
         ArrayList<Movie> moviesPlayed = new ArrayList<>();
-//        for (Movie movie:movies.values())
-//            if(movie.getCast().contains(actorId))
-//                moviesPlayed.add(movie);
+        for (Movie movie:movies.values())
+            if(movie.getCast().contains(actorId))
+                moviesPlayed.add(movie);
         return moviesPlayed;
     }
 
@@ -180,7 +163,6 @@ public class DataBase {
         for (User user: usersList) {
             checkUserExist(user.getEmail());
             users.put(user.getEmail(), user);
-            userRepository.save(user);
         }
 
     }
@@ -191,8 +173,7 @@ public class DataBase {
 
         for(Comment comment: commentsList) {
             comment.setUsername(users.get(comment.getUserEmail()).getName());
-//            movies.get(comment.getMovieId()).addComment(comment, commentId);
-            commentRepository.save(comment);
+            movies.get(comment.getMovieId()).addComment(comment, commentId);
             comments.put(commentId, comment);
             commentId += 1;
         }
@@ -230,12 +211,12 @@ public class DataBase {
     }
 
     private void searchByGenre(String searchValue) {
-//        for (Movie movie : movies.values())
-//            for(String genre:movie.getGenres())
-//                if (genre.contains(searchValue)) {
-//                    searchedMovies.put(movie.getId(), movie);
-//                    break;
-//            }
+        for (Movie movie : movies.values())
+            for(String genre:movie.getGenres())
+                if (genre.contains(searchValue)) {
+                    searchedMovies.put(movie.getId(), movie);
+                    break;
+            }
     }
 
     private void searchAll() {
@@ -274,11 +255,11 @@ public class DataBase {
         return errorUser;
     }
 
-    public Comment addComment(String userEmail, Integer movieId, String text) throws Exception {
+    public Comment addComment(String userEmail, Integer movieId, String text) {
         String username = users.get(userEmail).getName();
-        Comment comment = new Comment(commentId, userEmail, DataBase.getInstance().getMovieById(movieId), text, username);
+        Comment comment = new Comment(commentId, userEmail, movieId, text, username);
         comments.put(comment.getCommentId(), comment);
-        movies.get(movieId).getComments().add(comment);
+//        movies.get(movieId).getComments().put(comment.getCommentId(), comment);
         commentId += 1;
         return comment;
     }

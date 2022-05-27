@@ -4,23 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import ir.ac.ut.ie.Exceptions.InvalidCommand;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 
-@Entity
 public class Actor {
-    @Id
     private Integer id;
     private String name;
     private String birthDate;
     private String nationality;
     private String image;
-//    private ArrayList<Movie> moviesPlayed;
+    private ArrayList<Movie> moviesPlayed;
 
     public void update(Actor updatedActor) {
         name = updatedActor.getName();
@@ -48,14 +44,14 @@ public class Actor {
         return age;
     }
 
-//    public void setMoviesPlayed(ArrayList<Movie> moviesPlayed) {
-//        this.moviesPlayed = new ArrayList<>();
-//        this.moviesPlayed = moviesPlayed;
-//    }
-//
-//    public ArrayList<Movie> getMoviesPlayed() {
-//        return moviesPlayed;
-//    }
+    public void setMoviesPlayed(ArrayList<Movie> moviesPlayed) {
+        this.moviesPlayed = new ArrayList<>();
+        this.moviesPlayed = moviesPlayed;
+    }
+
+    public ArrayList<Movie> getMoviesPlayed() {
+        return moviesPlayed;
+    }
 
     public Integer getId() {
         return id;

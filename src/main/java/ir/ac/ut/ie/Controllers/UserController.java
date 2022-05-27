@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -17,7 +18,8 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public User getUser(
             @RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password) throws IOException, InterruptedException {
+            @RequestParam(value = "password") String password) throws IOException, InterruptedException, SQLException {
+        TimeUnit.SECONDS.sleep(3);
         return DataBase.getInstance().getAuthenticatedUser(username, password);
     }
 }

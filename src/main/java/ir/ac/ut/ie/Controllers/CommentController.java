@@ -17,6 +17,7 @@ public class CommentController {
             @RequestParam(value = "like") Integer like) throws Exception {
         Vote vote = new Vote(userId, commentId, like);
         DataBase.getInstance().getComments().get(commentId).addVote(vote);
+        TimeUnit.SECONDS.sleep(3);
         return DataBase.getInstance().getComments().get(commentId);
     }
 
@@ -26,6 +27,7 @@ public class CommentController {
             @RequestParam(value = "userId") String userId,
             @RequestParam(value = "movieId") Integer movieId,
             @RequestParam(value = "text") String text) throws Exception {
+        TimeUnit.SECONDS.sleep(3);
         return DataBase.getInstance().addComment(userId, movieId, text);
     }
 }
