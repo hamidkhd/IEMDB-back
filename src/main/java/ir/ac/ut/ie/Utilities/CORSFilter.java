@@ -1,6 +1,7 @@
 package ir.ac.ut.ie.Utilities;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import javax.servlet.Filter;
@@ -13,6 +14,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Component
 @WebFilter("/*")
 public class CORSFilter implements Filter {
 

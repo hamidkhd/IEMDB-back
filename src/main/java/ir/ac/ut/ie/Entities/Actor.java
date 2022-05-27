@@ -4,24 +4,34 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import ir.ac.ut.ie.Exceptions.InvalidCommand;
 
+import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 
+@Entity
+@Table(name = "Actor")
 public class Actor {
+    @Id
     private Integer id;
     private String name;
     private String birthDate;
     private String nationality;
     private String image;
-    private ArrayList<Movie> moviesPlayed;
+    @ManyToMany
+    private List<Movie> moviesPlayed;
 
     public void update(Actor updatedActor) {
         name = updatedActor.getName();
         birthDate = updatedActor.getBirthDate();
         nationality = updatedActor.getNationality();
+    }
+
+    public void addToMoviesPlayed(Movie movie) {
+        moviesPlayed.add(movie);
+        System.out.println(moviesPlayed.size());
     }
 
     public ObjectNode getInformation(ObjectMapper mapper) {
@@ -49,7 +59,7 @@ public class Actor {
         this.moviesPlayed = moviesPlayed;
     }
 
-    public ArrayList<Movie> getMoviesPlayed() {
+    public List<Movie> getMoviesPlayed() {
         return moviesPlayed;
     }
 

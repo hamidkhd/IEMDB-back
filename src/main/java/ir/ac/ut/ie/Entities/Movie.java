@@ -1,18 +1,20 @@
 package ir.ac.ut.ie.Entities;
 
 import ir.ac.ut.ie.Exceptions.InvalidCommand;
+import ir.ac.ut.ie.Repository.RateRepository;
+import org.w3c.dom.Text;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.*;
 
 @Entity
+@Table(name= "Movie")
 public class Movie {
     @Id
+    @Column(name = "movie_id")
     private Integer id;
     private String name;
+    @Column(columnDefinition = "TEXT")
     private String summary;
     private String releaseDate;
     private String director;
@@ -22,24 +24,28 @@ public class Movie {
     private List<String> genres;
     @ElementCollection
     private List<Integer> cast;
-    @ElementCollection
-    private List<String> castName;
     private Float imdbRate;
     private Integer duration;
     private Integer ageLimit;
-    public float rating;
-    private int ratingCount;
-//    private Map<Integer, Comment> comments;
-//    private Map<String, Integer> rates;
+    public Float rating;
+    private Integer ratingCount;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Comment> comments;
     private String image;
     private String coverImage;
-    int score;
+    Integer score;
+
+    public Movie() {
+        rating = (float) 0;
+        ratingCount = 0;
+        score = 0;
+        comments = new ArrayList<>();
+    }
 
     public void initialValues() {
-        rating = 0;
+        rating = (float) 0;
         ratingCount = 0;
-//        comments = new HashMap<>();
-//        rates = new HashMap<>();
+        comments = new ArrayList<>();
     }
 
     public void update(Movie updatedMovie) {
@@ -55,19 +61,22 @@ public class Movie {
         ageLimit = updatedMovie.getAgeLimit();
     }
 
-    public void addComment(Comment comment, Integer commentId) {
-        comment.initialValues(commentId);
-//        comments.put(commentId, comment);
+    public void addComment(Comment comment) {
+        comment.initialValues();
+        comments.add(comment);
     }
 
-    public void addRate(Rate rate) {
-//        if (rates.containsKey(rate.getUserEmail()))
-//            rating = (rating * ratingCount - rates.get(rate.getUserEmail()) + rate.getScore()) / ratingCount;
-//        else {
-//            rating = (rating * ratingCount + rate.getScore()) / (ratingCount + 1);
-//            ratingCount += 1;
-//        }
-//        rates.put(rate.getUserEmail(), (int) rate.getScore());
+    public void addRate(Rate rate, RateRepository rateRepository) {
+        Rate rateOb = rateRepository.findRateByUserEmailAndMovieId(rate.getUserEmail(), rate.getMovieId());
+
+        if (rateOb != null) {
+            rating = (rating * ratingCount - rateOb.getScore() + rate.getScore()) / ratingCount;
+            rateRepository.delete(rateOb);
+        }
+        else {
+            rating = (rating * ratingCount + rate.getScore()) / (ratingCount + 1);
+            ratingCount += 1;
+        }
     }
 
     public boolean genreMatch(String genre) {
@@ -75,12 +84,6 @@ public class Movie {
             if (curGenre.equals(genre))
                 return true;
         return false;
-    }
-
-    public void checkForInvalidCommand() throws InvalidCommand {
-        if (id == null || name == null || summary == null || releaseDate == null || director == null || writers == null
-                || genres == null || cast == null || imdbRate == null || duration == null || ageLimit == null)
-            throw new InvalidCommand();
     }
 
 
@@ -128,35 +131,23 @@ public class Movie {
         return ageLimit;
     }
 
-    public float getRating() {
+    public Float getRating() {
         return rating;
     }
 
-    public int getRatingCount() {
+    public Integer getRatingCount() {
         return ratingCount;
     }
 
-//    public Map<Integer, Comment> getComments() {
-//        return comments;
-//    }
-//
-//    public Map<String, Integer> getRates() {
-//        return rates;
-//    }
-
-    public void setCastName(List<String> castName) {
-        this.castName = castName;
+    public List<Comment> getComments() {
+        return comments;
     }
 
-    public List<String> getCastName() {
-        return castName;
-    }
-
-    public int getScore() {
+    public Integer getScore() {
         return score;
     }
 
-    public void setScore(int score) {
+    public void setScore(Integer score) {
         this.score = score;
     }
 

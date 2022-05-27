@@ -5,17 +5,33 @@ import ir.ac.ut.ie.Exceptions.AgeLimitError;
 import ir.ac.ut.ie.Exceptions.MovieAlreadyExists;
 import ir.ac.ut.ie.Exceptions.MovieNotFound;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 
+@Entity
+@Table(name= "User")
 public class User {
+    @Id
     private String email;
     private String password;
     private String nickname;
     private String name;
     private Date birthDate;
+    @ElementCollection
     private Set<Integer> watchList = new HashSet<>();
+
+
+    public User(String email, String password, String nickname, String name, Date birthDate) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.name = name;
+        this.birthDate = birthDate;
+    }
+
+    public User() {}
 
     public void addToWatchList(Integer movieId, int ageLimit) throws Exception {
         movieAlreadyExists(movieId);
@@ -33,7 +49,6 @@ public class User {
         int age = Period.between(birthDate, LocalDate.now()).getYears();
         if (age < ageLimit)
             throw new AgeLimitError();
-        System.out.println("ok");
     }
 
     public void removeFromWatchList(Integer movieId) throws Exception {
@@ -62,5 +77,8 @@ public class User {
     }
     public void setName(String name) {
         this.name = name;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
