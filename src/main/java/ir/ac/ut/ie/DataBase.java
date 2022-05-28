@@ -64,11 +64,11 @@ public class DataBase {
 
     private void setInformation() {
         try {
-//            setActorsList();
-//            setMoviesList();
-//            setUsersList();
-//            setCommentsList();
-//            setActorMoviesPlayed();
+            setActorsList();
+            setMoviesList();
+            setUsersList();
+            setCommentsList();
+            setActorMoviesPlayed();
         }
         catch (Exception exception) {
             System.out.println(exception.getMessage());
