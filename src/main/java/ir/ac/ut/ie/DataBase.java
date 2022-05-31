@@ -6,16 +6,12 @@ import ir.ac.ut.ie.Entities.Comment;
 import ir.ac.ut.ie.Entities.Movie;
 import ir.ac.ut.ie.Entities.User;
 import ir.ac.ut.ie.Repository.*;
-import ir.ac.ut.ie.Utilities.HashCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.net.*;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -101,8 +97,6 @@ public class DataBase {
     private void setUsersList() throws Exception {
         String data = getConnection("/api/users");
         User[] usersList = mapper.readValue(data, User[].class);
-        for (User user: usersList)
-            user.setPassword(HashCreator.getInstance().getMD5Hash(user.getPassword()));
         userRepository.saveAll(Arrays.asList(usersList));
     }
 
@@ -152,45 +146,6 @@ public class DataBase {
         User errorUser = new User();
         errorUser.setName("error");
         return errorUser;
-    }
-
-    public User addUser(String username, String password, String name, String nickname, String birth_date) throws ParseException, NoSuchAlgorithmException {
-        if (userRepository.findUserByEmail(username) != null)
-        {
-            User errorUser = new User();
-            errorUser.setName("error");
-            return errorUser;
-        }
-        Date birthDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(birth_date);
-        String hashPassword = HashCreator.getInstance().getMD5Hash(password);
-        User user = new User(username, hashPassword, nickname, name, birthDate);
-        userRepository.save(user);
-        return user;
-    }
-
-    public User addUserWithGithub(String username, String password, String name, String nickname, String birth_date) throws Exception {
-        User findUser = userRepository.findUserByEmail(username);
-
-        Date birthDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(birth_date);
-        Calendar c = Calendar.getInstance();
-        c.setTime(birthDate);
-        c.add(Calendar.YEAR, -18);
-        Date newBirthDate = c.getTime();
-
-
-        if (findUser != null)
-        {
-            findUser.setPassword(password);
-            findUser.setName(name);
-            findUser.setNickname(nickname);
-            findUser.setBirthDate(newBirthDate);
-            userRepository.save(findUser);
-            return findUser;
-        }
-
-        User user = new User(username, password, nickname, name, newBirthDate);
-        userRepository.save(user);
-        return user;
     }
 
     public Comment addComment(String userEmail, Integer movieId, String text) {

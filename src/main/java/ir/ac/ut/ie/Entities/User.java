@@ -22,17 +22,6 @@ public class User {
     @ElementCollection
     private Set<Integer> watchList = new HashSet<>();
 
-
-    public User(String email, String password, String nickname, String name, Date birthDate) {
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.name = name;
-        this.birthDate = birthDate;
-    }
-
-    public User() {}
-
     public void addToWatchList(Integer movieId, int ageLimit) throws Exception {
         movieAlreadyExists(movieId);
         ageLimitError(ageLimit);
@@ -78,11 +67,4 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public void setBirthDate(Date birthDate) { this.birthDate = birthDate; }
 }
