@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class IEMDBApplication {
 
     public static void main(String[] args) {
+        System.setProperty("server.port", "8080");
         SpringApplication.run(IEMDBApplication.class, args);
     }
 
