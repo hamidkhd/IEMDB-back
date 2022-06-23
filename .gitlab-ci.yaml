@@ -20,4 +20,13 @@ build:
       exists:
         - Dockerfile
 
+deploy:
+  image: quay.io/alizare1/bolbolestan:kubectl-ovpn
+  before_script:
+#    - openvpn --config $OVPN_CONFIG --daemon
+  stage: deploy
+#  when: manual
+  script:
+    - kubectl --kubeconfig $KUBE_CONFIG set image deployment/server server=quay.io/nazaninyousefian79/iemdb-back:$CI_BUILD_REF
+
 
