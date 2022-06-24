@@ -32,6 +32,6 @@ spec:
             name: database-pv-storage
         env:
           - name: MYSQL_ROOT_PASSWORD
-            value: "password"
+            value: "@Hamid78"
           - name: MYSQL_DATABASE
             value: "iemdb"

@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: quay.io/nazaninyousefian79/iemdb-back:test
+          image: quay.io/nazaninyousefian79/iemdb-back:test6
           imagePullPolicy: Always
           env:
             - name: SERVER_PORT
